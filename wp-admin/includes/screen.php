@@ -447,8 +447,8 @@ final class WP_Screen {
 		if ( ! $hook_name ) {
 			if ( Request::isSetPostType() )
 				$post_type = post_type_exists( Request::getPostType() ) ? Request::getPostType() : false;
-			if ( isset( $_REQUEST['taxonomy'] ) )
-				$taxonomy = taxonomy_exists( $_REQUEST['taxonomy'] ) ? $_REQUEST['taxonomy'] : false;
+			if ( Request::isSetTaxonomy() )
+				$taxonomy = taxonomy_exists( Request::getTaxonomy() ) ? Request::getTaxonomy() : false;
 
 			switch ( $base ) {
 				case 'post' :

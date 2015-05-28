@@ -121,8 +121,8 @@ if ( Request::isSetPostType() && post_type_exists( Request::getPostType() ) )
 else
 	$typenow = '';
 
-if ( isset( $_REQUEST['taxonomy'] ) && taxonomy_exists( $_REQUEST['taxonomy'] ) )
-	$taxnow = $_REQUEST['taxonomy'];
+if ( Request::isSetTaxonomy() && taxonomy_exists( Request::getTaxonomy() ) )
+	$taxnow = Request::getTaxonomy();
 else
 	$taxnow = '';
 

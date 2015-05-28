@@ -7,6 +7,9 @@
  * @since 3.0.0
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /** Load WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 
@@ -46,7 +49,7 @@ get_current_screen()->set_help_sidebar(
 	'<p>' . __('<a href="https://wordpress.org/support/forum/multisite/" target="_blank">Support Forums</a>') . '</p>'
 );
 
-$id = isset( $_REQUEST['id'] ) ? intval( $_REQUEST['id'] ) : 0;
+$id = Request::isSetId() ? intval( Request::getId() ) : 0;
 
 if ( isset( $_GET['action'] ) ) {
 	/** This action is documented in wp-admin/network/edit.php */

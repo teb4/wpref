@@ -7,6 +7,9 @@
  * @since 3.1.0
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /** Load WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 
@@ -48,7 +51,7 @@ if ( ! empty( $_REQUEST['paged'] ) ) {
 	$referer = add_query_arg( 'paged', (int) $_REQUEST['paged'], $referer );
 }
 
-$id = isset( $_REQUEST['id'] ) ? intval( $_REQUEST['id'] ) : 0;
+$id = Request::isSetId() ? intval( Request::getId() ) : 0;
 
 if ( ! $id )
 	wp_die( __('Invalid site ID.') );

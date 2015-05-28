@@ -8,6 +8,10 @@
  * @package WordPress
  * @subpackage List_Table
  */
+
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_Users_List_Table extends WP_List_Table {
 
 	/**
@@ -48,7 +52,7 @@ class WP_Users_List_Table extends WP_List_Table {
 		$this->is_site_users = 'site-users-network' == $this->screen->id;
 
 		if ( $this->is_site_users )
-			$this->site_id = isset( $_REQUEST['id'] ) ? intval( $_REQUEST['id'] ) : 0;
+			$this->site_id = Request::isSetId() ? intval( Request::getId() ) : 0;
 	}
 
 	/**

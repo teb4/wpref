@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 //
 // No-privilege Ajax handlers.
@@ -2171,10 +2173,10 @@ function wp_ajax_dismiss_wp_pointer() {
  * @since 3.5.0
  */
 function wp_ajax_get_attachment() {
-	if ( ! isset( $_REQUEST['id'] ) )
+	if ( !Request::isSetId() )
 		wp_send_json_error();
 
-	if ( ! $id = absint( $_REQUEST['id'] ) )
+	if ( ! $id = absint( Request::getId() ) )
 		wp_send_json_error();
 
 	if ( ! $post = get_post( $id ) )
@@ -2250,10 +2252,10 @@ function wp_ajax_query_attachments() {
  * @since 3.5.0
  */
 function wp_ajax_save_attachment() {
-	if ( ! isset( $_REQUEST['id'] ) || ! isset( $_REQUEST['changes'] ) )
+	if ( !Request::isSetId() || ! isset( $_REQUEST['changes'] ) )
 		wp_send_json_error();
 
-	if ( ! $id = absint( $_REQUEST['id'] ) )
+	if ( ! $id = absint( Request::getId() ) )
 		wp_send_json_error();
 
 	check_ajax_referer( 'update-post_' . $id, 'nonce' );
@@ -2324,10 +2326,10 @@ function wp_ajax_save_attachment() {
  * @since 3.5.0
  */
 function wp_ajax_save_attachment_compat() {
-	if ( ! isset( $_REQUEST['id'] ) )
+	if ( !Request::isSetId() )
 		wp_send_json_error();
 
-	if ( ! $id = absint( $_REQUEST['id'] ) )
+	if ( ! $id = absint( Request::getId() ) )
 		wp_send_json_error();
 
 	if ( empty( $_REQUEST['attachments'] ) || empty( $_REQUEST['attachments'][ $id ] ) )

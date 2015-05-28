@@ -7,6 +7,10 @@
  * @since 3.1.0
  * @access private
  */
+
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_MS_Themes_List_Table extends WP_List_Table {
 
 	public $site_id;
@@ -41,7 +45,7 @@ class WP_MS_Themes_List_Table extends WP_List_Table {
 		$this->is_site_themes = ( 'site-themes-network' == $this->screen->id ) ? true : false;
 
 		if ( $this->is_site_themes )
-			$this->site_id = isset( $_REQUEST['id'] ) ? intval( $_REQUEST['id'] ) : 0;
+			$this->site_id = Request::isSetId() ? intval( Request::getId() ) : 0;
 	}
 
 	protected function get_table_classes() {
