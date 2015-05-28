@@ -6,6 +6,9 @@
  * @subpackage Administration
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /**
  * Get the column headers for a screen
  *
@@ -442,8 +445,8 @@ final class WP_Screen {
 
 		// If this is the current screen, see if we can be more accurate for post types and taxonomies.
 		if ( ! $hook_name ) {
-			if ( isset( $_REQUEST['post_type'] ) )
-				$post_type = post_type_exists( $_REQUEST['post_type'] ) ? $_REQUEST['post_type'] : false;
+			if ( Request::isSetPostType() )
+				$post_type = post_type_exists( Request::getPostType() ) ? Request::getPostType() : false;
 			if ( isset( $_REQUEST['taxonomy'] ) )
 				$taxonomy = taxonomy_exists( $_REQUEST['taxonomy'] ) ? $_REQUEST['taxonomy'] : false;
 
@@ -486,8 +489,8 @@ final class WP_Screen {
 				// The edit-tags ID does not contain the post type. Look for it in the request.
 				if ( null === $post_type ) {
 					$post_type = 'post';
-					if ( isset( $_REQUEST['post_type'] ) && post_type_exists( $_REQUEST['post_type'] ) )
-						$post_type = $_REQUEST['post_type'];
+					if ( Request::isSetPostType() && post_type_exists( Request::getPostType() ) )
+						$post_type = Request::getPostType();
 				}
 
 				$id = 'edit-' . $taxonomy;

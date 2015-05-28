@@ -6,6 +6,9 @@
  * @subpackage Administration
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /**
  * In WordPress Administration Screens
  *
@@ -113,8 +116,8 @@ if ( isset($_GET['page']) ) {
 	$plugin_page = plugin_basename($plugin_page);
 }
 
-if ( isset( $_REQUEST['post_type'] ) && post_type_exists( $_REQUEST['post_type'] ) )
-	$typenow = $_REQUEST['post_type'];
+if ( Request::isSetPostType() && post_type_exists( Request::getPostType() ) )
+	$typenow = Request::getPostType();
 else
 	$typenow = '';
 

@@ -7,6 +7,9 @@
  * @since 3.1.0
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /**
  * Comments List Table class.
  *
@@ -66,7 +69,7 @@ class WP_Comments_List_Table extends WP_List_Table {
 
 		$search = ( isset( $_REQUEST['s'] ) ) ? $_REQUEST['s'] : '';
 
-		$post_type = ( isset( $_REQUEST['post_type'] ) ) ? sanitize_key( $_REQUEST['post_type'] ) : '';
+		$post_type = ( Request::isSetPostType() ) ? sanitize_key( Request::getPostType() ) : '';
 
 		$user_id = ( isset( $_REQUEST['user_id'] ) ) ? $_REQUEST['user_id'] : '';
 

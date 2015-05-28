@@ -11,4 +11,10 @@
         public static function getAction(){
             return $_REQUEST[ 'action' ];
         }
+        public static function isSetPostType(){
+            return isset( $_REQUEST[ 'post_type' ] );
+        }        
+        public static function getPostType(){
+            return $_REQUEST[ 'post_type' ];
+        }        
     }
