@@ -6,7 +6,10 @@
  * @subpackage Administration
  */
 
-if ( isset( $_REQUEST['action'] ) && 'upload-attachment' === $_REQUEST['action'] ) {
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
+if ( Request::isSetAction() && 'upload-attachment' === Request::getAction() ) {
 	define( 'DOING_AJAX', true );
 }
 
@@ -19,7 +22,7 @@ if ( defined('ABSPATH') )
 else
 	require_once( dirname( dirname( __FILE__ ) ) . '/wp-load.php' );
 
-if ( ! ( isset( $_REQUEST['action'] ) && 'upload-attachment' == $_REQUEST['action'] ) ) {
+if ( ! ( Request::isSetAction() && 'upload-attachment' == Request::getAction() ) ) {
 	// Flash often fails to send cookies with the POST or upload, so we need to pass it in GET or POST instead
 	if ( is_ssl() && empty($_COOKIE[SECURE_AUTH_COOKIE]) && !empty($_REQUEST['auth_cookie']) )
 		$_COOKIE[SECURE_AUTH_COOKIE] = $_REQUEST['auth_cookie'];
@@ -34,7 +37,7 @@ require_once( ABSPATH . 'wp-admin/admin.php' );
 
 header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
 
-if ( isset( $_REQUEST['action'] ) && 'upload-attachment' === $_REQUEST['action'] ) {
+if ( Request::isSetAction() && 'upload-attachment' === Request::getAction() ) {
 	include( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
 
 	send_nosniff_header();

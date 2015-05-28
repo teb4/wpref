@@ -6,6 +6,9 @@
  * @subpackage Administration
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 
@@ -33,7 +36,7 @@ Please click the following link to activate your user account:
 	add_filter( 'wpmu_signup_user_notification_email', 'admin_created_user_email' );
 }
 
-if ( isset($_REQUEST['action']) && 'adduser' == $_REQUEST['action'] ) {
+if ( Request::isSetAction() && 'adduser' == Request::getAction() ) {
 	check_admin_referer( 'add-user', '_wpnonce_add-user' );
 
 	$user_details = null;
@@ -88,7 +91,7 @@ Please click the following link to confirm the invite:
 	}
 	wp_redirect( $redirect );
 	die();
-} elseif ( isset($_REQUEST['action']) && 'createuser' == $_REQUEST['action'] ) {
+} elseif (Request::isSetAction() && 'createuser' == Request::getAction() ) {
 	check_admin_referer( 'create-user', '_wpnonce_create-user' );
 
 	if ( ! current_user_can('create_users') )

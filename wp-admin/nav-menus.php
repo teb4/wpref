@@ -9,6 +9,9 @@
  * @subpackage Administration
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /** Load WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 
@@ -42,7 +45,7 @@ $menu_locations = get_nav_menu_locations();
 $num_locations = count( array_keys( $locations ) );
 
 // Allowed actions: add, update, delete
-$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : 'edit';
+$action = Request::isSetAction() ? Request::getAction() : 'edit';
 
 switch ( $action ) {
 	case 'add-menu-item':

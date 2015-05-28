@@ -18,6 +18,9 @@ if ( ! defined( 'WP_ADMIN' ) ) {
 	define( 'WP_ADMIN', true );
 }
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /** Load WordPress Bootstrap */
 require_once( dirname( dirname( __FILE__ ) ) . '/wp-load.php' );
 
@@ -25,7 +28,7 @@ require_once( dirname( dirname( __FILE__ ) ) . '/wp-load.php' );
 send_origin_headers();
 
 // Require an action parameter
-if ( empty( $_REQUEST['action'] ) )
+if ( Request::isEmptyAction() )
 	die( '0' );
 
 /** Load WordPress Administration APIs */
@@ -83,7 +86,7 @@ if ( is_user_logged_in() ) {
 	 *
 	 * @since 2.1.0
 	 */
-	do_action( 'wp_ajax_' . $_REQUEST['action'] );
+	do_action( 'wp_ajax_' . Request::getAction() );
 } else {
 	/**
 	 * Fires non-authenticated AJAX actions for logged-out users.
@@ -93,7 +96,7 @@ if ( is_user_logged_in() ) {
 	 *
 	 * @since 2.8.0
 	 */
-	do_action( 'wp_ajax_nopriv_' . $_REQUEST['action'] );
+	do_action( 'wp_ajax_nopriv_' . Request::getAction() );
 }
 // Default status
 die( '0' );

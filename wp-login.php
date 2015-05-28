@@ -8,6 +8,9 @@
  * @package WordPress
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /** Make sure that the WordPress bootstrap has run before continuing. */
 require( dirname(__FILE__) . '/wp-load.php' );
 
@@ -410,7 +413,7 @@ function retrieve_password() {
 // Main
 //
 
-$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : 'login';
+$action = Request::isSetAction() ? Request::getAction() : 'login';
 $errors = new WP_Error();
 
 if ( isset($_GET['key']) )

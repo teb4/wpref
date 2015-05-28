@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 if ( ! defined( 'IFRAME_REQUEST' ) && isset( $_GET['action'] ) && in_array( $_GET['action'], array( 'update-selected', 'activate-plugin', 'update-selected-themes' ) ) )
 	define( 'IFRAME_REQUEST', true );
@@ -17,7 +19,7 @@ include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 if ( isset($_GET['action']) ) {
 	$plugin = isset($_REQUEST['plugin']) ? trim($_REQUEST['plugin']) : '';
 	$theme = isset($_REQUEST['theme']) ? urldecode($_REQUEST['theme']) : '';
-	$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+	$action = Request::isSetAction() ? Request::getAction() : '';
 
 	if ( 'update-selected' == $action ) {
 		if ( ! current_user_can( 'update_plugins' ) )

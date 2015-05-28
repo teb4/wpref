@@ -7,6 +7,9 @@
  * @since 3.1.0
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /** Load WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 
@@ -45,7 +48,7 @@ if ( !can_edit_network( $details->site_id ) )
 $parsed = parse_url( $details->siteurl );
 $is_main_site = is_main_site( $id );
 
-if ( isset($_REQUEST['action']) && 'update-site' == $_REQUEST['action'] ) {
+if ( Request::isSetAction() && 'update-site' == Request::getAction() ) {
 	check_admin_referer( 'edit-site' );
 
 	switch_to_blog( $id );

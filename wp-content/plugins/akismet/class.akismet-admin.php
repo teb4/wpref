@@ -1,5 +1,8 @@
 <?php
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class Akismet_Admin {
 	const NONCE = 'akismet-update-key';
 
@@ -345,7 +348,7 @@ class Akismet_Admin {
 
 		Akismet::fix_scheduled_recheck();
 
-		if ( ! ( isset( $_GET['recheckqueue'] ) || ( isset( $_REQUEST['action'] ) && 'akismet_recheck_queue' == $_REQUEST['action'] ) ) )
+		if ( ! ( isset( $_GET['recheckqueue'] ) || ( Request::isSetAction() && 'akismet_recheck_queue' == Request::getAction() ) ) )
 			return;
 
 		$paginate = '';

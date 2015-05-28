@@ -20,6 +20,9 @@
  *
  * @since 3.4.0
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 final class WP_Customize_Manager {
 	/**
 	 * An instance of the theme being previewed.
@@ -137,7 +140,7 @@ final class WP_Customize_Manager {
 			 * Note: we can't just use doing_action( "wp_ajax_{$action}" ) because we need
 			 * to check before admin-ajax.php gets to that point.
 			 */
-			return isset( $_REQUEST['action'] ) && wp_unslash( $_REQUEST['action'] ) === $action;
+			return Request::isSetAction() && wp_unslash( Request::getAction() ) === $action;
 		}
 	}
 

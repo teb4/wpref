@@ -12,6 +12,8 @@
 if ( ! defined( 'WP_ADMIN' ) ) {
 	define( 'WP_ADMIN', true );
 }
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 if ( defined('ABSPATH') )
 	require_once(ABSPATH . 'wp-load.php');
@@ -28,7 +30,7 @@ nocache_headers();
 /** This action is documented in wp-admin/admin.php */
 do_action( 'admin_init' );
 
-$action = empty( $_REQUEST['action'] ) ? '' : $_REQUEST['action'];
+$action = Request::isEmptyAction() ? '' : Request::getAction();
 
 if ( ! wp_validate_auth_cookie() ) {
 	if ( empty( $action ) ) {

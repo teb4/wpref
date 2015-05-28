@@ -28,6 +28,9 @@ if ( ! WP_NETWORK_ADMIN && ! WP_USER_ADMIN ) {
 if ( isset($_GET['import']) && !defined('WP_LOAD_IMPORTERS') )
 	define('WP_LOAD_IMPORTERS', true);
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 require_once(dirname(dirname(__FILE__)) . '/wp-load.php');
 
 nocache_headers();
@@ -348,7 +351,7 @@ if ( isset($plugin_page) ) {
 	}
 }
 
-if ( ! empty( $_REQUEST['action'] ) ) {
+if ( !Request::isEmptyAction() ) {
 	/**
 	 * Fires when an 'action' request variable is sent.
 	 *
@@ -357,5 +360,5 @@ if ( ! empty( $_REQUEST['action'] ) ) {
 	 *
 	 * @since 2.6.0
 	 */
-	do_action( 'admin_action_' . $_REQUEST['action'] );
+	do_action( 'admin_action_' . Request::getAction() );
 }

@@ -8,6 +8,9 @@
  * @package WordPress
  * @subpackage List_Table
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_List_Table {
 
 	/**
@@ -461,8 +464,8 @@ class WP_List_Table {
 		if ( isset( $_REQUEST['filter_action'] ) && ! empty( $_REQUEST['filter_action'] ) )
 			return false;
 
-		if ( isset( $_REQUEST['action'] ) && -1 != $_REQUEST['action'] )
-			return $_REQUEST['action'];
+		if ( Request::isSetAction() && -1 != Request::getAction() )
+			return Request::getAction();
 
 		if ( isset( $_REQUEST['action2'] ) && -1 != $_REQUEST['action2'] )
 			return $_REQUEST['action2'];

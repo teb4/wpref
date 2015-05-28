@@ -7,6 +7,9 @@
  * @since 3.1.0
  * @access private
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_Terms_List_Table extends WP_List_Table {
 
 	public $callback_args;
@@ -126,7 +129,7 @@ class WP_Terms_List_Table extends WP_List_Table {
 	}
 
 	public function current_action() {
-		if ( isset( $_REQUEST['action'] ) && isset( $_REQUEST['delete_tags'] ) && ( 'delete' == $_REQUEST['action'] || 'delete' == $_REQUEST['action2'] ) )
+		if ( Request::isSetAction() && isset( $_REQUEST['delete_tags'] ) && ( 'delete' == Request::getAction() || 'delete' == $_REQUEST['action2'] ) )
 			return 'bulk-delete';
 
 		return parent::current_action();

@@ -7,6 +7,9 @@
  * @since 3.0.0
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /** Load WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 
@@ -278,11 +281,11 @@ get_current_screen()->set_help_sidebar(
 
 require_once( ABSPATH . 'wp-admin/admin-header.php' );
 
-if ( isset( $_REQUEST['updated'] ) && $_REQUEST['updated'] == 'true' && ! empty( $_REQUEST['action'] ) ) {
+if ( isset( $_REQUEST['updated'] ) && $_REQUEST['updated'] == 'true' && !Request::isEmptyAction() ) {
 	?>
 	<div id="message" class="updated notice is-dismissible"><p>
 		<?php
-		switch ( $_REQUEST['action'] ) {
+		switch ( Request::getAction() ) {
 			case 'delete':
 				_e( 'User deleted.' );
 			break;
