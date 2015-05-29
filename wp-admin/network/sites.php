@@ -257,7 +257,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 	<a href="<?php echo network_admin_url('site-new.php'); ?>" class="add-new-h2"><?php echo esc_html_x( 'Add New', 'site' ); ?></a>
 <?php endif; ?>
 
-<?php if ( isset( $_REQUEST['s'] ) && $_REQUEST['s'] ) {
+<?php if ( Request::isSetS() && Request::getS() ) {
 	printf( '<span class="subtitle">' . __( 'Search results for &#8220;%s&#8221;' ) . '</span>', esc_html( $s ) );
 } ?>
 </h2>

@@ -6,6 +6,8 @@
  * @subpackage Multisite
  * @since 3.1.0
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /** Load WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -21,7 +23,7 @@ $pagenum = $wp_list_table->get_pagenum();
 
 $action = $wp_list_table->current_action();
 
-$s = isset($_REQUEST['s']) ? $_REQUEST['s'] : '';
+$s = Request::isSetS() ? Request::getS() : '';
 
 // Clean up request URI from temporary args for screen options/paging uri's to work as expected.
 $temp_args = array( 'enabled', 'disabled', 'deleted', 'error' );

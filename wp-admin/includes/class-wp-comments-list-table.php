@@ -67,7 +67,7 @@ class WP_Comments_List_Table extends WP_List_Table {
 
 		$comment_type = !empty( $_REQUEST['comment_type'] ) ? $_REQUEST['comment_type'] : '';
 
-		$search = ( isset( $_REQUEST['s'] ) ) ? $_REQUEST['s'] : '';
+		$search = ( Request::isSetS() ) ? Request::getS() : '';
 
 		$post_type = ( Request::isSetPostType() ) ? sanitize_key( Request::getPostType() ) : '';
 
@@ -195,11 +195,6 @@ class WP_Comments_List_Table extends WP_List_Table {
 			$link = add_query_arg( 'comment_status', $status, $link );
 			if ( $post_id )
 				$link = add_query_arg( 'p', absint( $post_id ), $link );
-			/*
-			// I toyed with this, but decided against it. Leaving it in here in case anyone thinks it is a good idea. ~ Mark
-			if ( !empty( $_REQUEST['s'] ) )
-				$link = add_query_arg( 's', esc_attr( wp_unslash( $_REQUEST['s'] ) ), $link );
-			*/
 			$status_links[$status] = "<a href='$link'$class>" . sprintf(
 				translate_nooped_plural( $label, $num_comments->$status ),
 				number_format_i18n( $num_comments->$status )

@@ -7,6 +7,9 @@
  * @since 3.1.0
  * @access private
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_Posts_List_Table extends WP_List_Table {
 
 	/**
@@ -121,8 +124,8 @@ class WP_Posts_List_Table extends WP_List_Table {
 		else
 			$total_pages = $wp_query->max_num_pages;
 
-		if ( ! empty( $_REQUEST['mode'] ) ) {
-			$mode = $_REQUEST['mode'] == 'excerpt' ? 'excerpt' : 'list';
+		if ( !Request::isEmptyMode() ) {
+			$mode = Request::getMode() == 'excerpt' ? 'excerpt' : 'list';
 			set_user_setting ( 'posts_list_mode', $mode );
 		} else {
 			$mode = get_user_setting ( 'posts_list_mode', 'list' );
@@ -492,7 +495,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 		 * It only takes O( N ) to arrange this and it takes O( 1 ) for subsequent lookup operations
 		 * If searching, ignore hierarchy and treat everything as top level
 		 */
-		if ( empty( $_REQUEST['s'] ) ) {
+		if ( Request::isEmptyS() ) {
 
 			$top_level_pages = array();
 			$children_pages = array();

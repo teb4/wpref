@@ -7,6 +7,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 //
 // Category Checklists
@@ -1568,7 +1570,7 @@ function _draft_or_post_title( $post = 0 ) {
  * @since 2.7.0
  */
 function _admin_search_query() {
-	echo isset($_REQUEST['s']) ? esc_attr( wp_unslash( $_REQUEST['s'] ) ) : '';
+	echo Request::isSetS() ? esc_attr( wp_unslash( Request::getS() ) ) : '';
 }
 
 /**

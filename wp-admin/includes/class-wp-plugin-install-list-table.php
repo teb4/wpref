@@ -7,6 +7,9 @@
  * @since 3.1.0
  * @access private
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_Plugin_Install_List_Table extends WP_List_Table {
 
 	public $order = 'ASC';
@@ -117,8 +120,8 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 
 		switch ( $tab ) {
 			case 'search':
-				$type = isset( $_REQUEST['type'] ) ? wp_unslash( $_REQUEST['type'] ) : 'term';
-				$term = isset( $_REQUEST['s'] ) ? wp_unslash( $_REQUEST['s'] ) : '';
+				$type = Request::isSetType() ? wp_unslash( Request::getType() ) : 'term';
+				$term = Request::isSetS() ? wp_unslash( Request::getS() ) : '';
 
 				switch ( $type ) {
 					case 'tag':

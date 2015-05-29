@@ -6,6 +6,9 @@
  * @subpackage Administration
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 
@@ -302,8 +305,8 @@ $class = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated';
 
 <div class="wrap nosubsub">
 <h2><?php echo esc_html( $title );
-if ( !empty($_REQUEST['s']) )
-	printf( '<span class="subtitle">' . __('Search results for &#8220;%s&#8221;') . '</span>', esc_html( wp_unslash($_REQUEST['s']) ) ); ?>
+if ( !Request::isEmptyS() )
+	printf( '<span class="subtitle">' . __('Search results for &#8220;%s&#8221;') . '</span>', esc_html( wp_unslash(Request::getS()) ) ); ?>
 </h2>
 
 <?php if ( $message ) : ?>

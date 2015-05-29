@@ -7,6 +7,9 @@
  * @since 3.1.0
  * @access private
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_Theme_Install_List_Table extends WP_Themes_List_Table {
 
 	public $features = array();
@@ -23,8 +26,8 @@ class WP_Theme_Install_List_Table extends WP_Themes_List_Table {
 
 		$search_terms = array();
 		$search_string = '';
-		if ( ! empty( $_REQUEST['s'] ) ){
-			$search_string = strtolower( wp_unslash( $_REQUEST['s'] ) );
+		if ( !Request::isEmptyS() ){
+			$search_string = strtolower( wp_unslash( Request::getS() ) );
 			$search_terms = array_unique( array_filter( array_map( 'trim', explode( ',', $search_string ) ) ) );
 		}
 
@@ -69,7 +72,7 @@ class WP_Theme_Install_List_Table extends WP_Themes_List_Table {
 
 		switch ( $tab ) {
 			case 'search':
-				$type = isset( $_REQUEST['type'] ) ? wp_unslash( $_REQUEST['type'] ) : 'term';
+				$type = Request::isSetType() ? wp_unslash( Request::getType() ) : 'term';
 				switch ( $type ) {
 					case 'tag':
 						$args['tag'] = array_map( 'sanitize_key', $search_terms );
@@ -84,8 +87,8 @@ class WP_Theme_Install_List_Table extends WP_Themes_List_Table {
 
 				if ( ! empty( $this->features ) ) {
 					$args['tag'] = $this->features;
-					$_REQUEST['s'] = implode( ',', $this->features );
-					$_REQUEST['type'] = 'tag';
+					Request::setS( implode( ',', $this->features ) );
+					Request::setType( 'tag' );
 				}
 
 				add_action( 'install_themes_table_header', 'install_theme_search_form', 10, 0 );

@@ -7,6 +7,9 @@
  * @since 3.1.0
  * @access private
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_MS_Users_List_Table extends WP_List_Table {
 
 	public function ajax_user_can() {
@@ -16,7 +19,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 	public function prepare_items() {
 		global $usersearch, $role, $wpdb, $mode;
 
-		$usersearch = isset( $_REQUEST['s'] ) ? wp_unslash( trim( $_REQUEST['s'] ) ) : '';
+		$usersearch = Request::isSetS() ? wp_unslash( trim( Request::getS() ) ) : '';
 
 		$users_per_page = $this->get_items_per_page( 'users_network_per_page' );
 
@@ -59,7 +62,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 		if ( isset( $_REQUEST['order'] ) )
 			$args['order'] = $_REQUEST['order'];
 
-		$mode = empty( $_REQUEST['mode'] ) ? 'list' : $_REQUEST['mode'];
+		$mode = Request::isEmptyMode() ? 'list' : Request::getMode();
 
 		// Query the user IDs for this page
 		$wp_user_search = new WP_User_Query( $args );

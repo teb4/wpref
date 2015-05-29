@@ -108,8 +108,8 @@ if ( $action ) {
 			check_admin_referer( 'bulk-users' );
 
 			$update = 'remove';
-			if ( isset( $_REQUEST['users'] ) ) {
-				$userids = $_REQUEST['users'];
+			if ( Request::isSetUsers() ) {
+				$userids = Request::getUsers();
 
 				foreach ( $userids as $user_id ) {
 					$user_id = (int) $user_id;
@@ -128,8 +128,8 @@ if ( $action ) {
 			if ( empty( $editable_roles[$_REQUEST['new_role']] ) )
 				wp_die(__('You can&#8217;t give users that role.'));
 
-			if ( isset( $_REQUEST['users'] ) ) {
-				$userids = $_REQUEST['users'];
+			if ( Request::isSetUsers() ) {
+				$userids = Request::getUsers();
 				$update = 'promote';
 				foreach ( $userids as $user_id ) {
 					$user_id = (int) $user_id;

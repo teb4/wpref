@@ -7,6 +7,9 @@
  * @since 3.1.0
  * @access private
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_Themes_List_Table extends WP_List_Table {
 
 	protected $search_terms = array();
@@ -37,8 +40,8 @@ class WP_Themes_List_Table extends WP_List_Table {
 	public function prepare_items() {
 		$themes = wp_get_themes( array( 'allowed' => true ) );
 
-		if ( ! empty( $_REQUEST['s'] ) )
-			$this->search_terms = array_unique( array_filter( array_map( 'trim', explode( ',', strtolower( wp_unslash( $_REQUEST['s'] ) ) ) ) ) );
+		if ( !Request::isEmptyS() )
+			$this->search_terms = array_unique( array_filter( array_map( 'trim', explode( ',', strtolower( wp_unslash(Request::getS() ) ) ) ) ) );
 
 		if ( ! empty( $_REQUEST['features'] ) )
 			$this->features = $_REQUEST['features'];
@@ -267,7 +270,7 @@ class WP_Themes_List_Table extends WP_List_Table {
 	 * @param array $extra_args
 	 */
 	public function _js_vars( $extra_args = array() ) {
-		$search_string = isset( $_REQUEST['s'] ) ? esc_attr( wp_unslash( $_REQUEST['s'] ) ) : '';
+		$search_string = Request::isSetS() ? esc_attr( wp_unslash( Request::getS() ) ) : '';
 
 		$args = array(
 			'search' => $search_string,

@@ -7,6 +7,9 @@
  * @since 3.1.0
  * @access private
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_MS_Sites_List_Table extends WP_List_Table {
 
 	/**
@@ -35,13 +38,13 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 
 		$current_site = get_current_site();
 
-		$mode = ( empty( $_REQUEST['mode'] ) ) ? 'list' : $_REQUEST['mode'];
+		$mode = ( Request::isEmptyMode() ) ? 'list' : Request::getMode();
 
 		$per_page = $this->get_items_per_page( 'sites_network_per_page' );
 
 		$pagenum = $this->get_pagenum();
 
-		$s = isset( $_REQUEST['s'] ) ? wp_unslash( trim( $_REQUEST[ 's' ] ) ) : '';
+		$s = Request::isSetS() ? wp_unslash( trim( Request::getS() ) ) : '';
 		$wild = '';
 		if ( false !== strpos($s, '*') ) {
 			$wild = '%';

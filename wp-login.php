@@ -492,8 +492,8 @@ case 'logout' :
 
 	wp_logout();
 
-	if ( ! empty( $_REQUEST['redirect_to'] ) ) {
-		$redirect_to = $requested_redirect_to = $_REQUEST['redirect_to'];
+	if ( !Request::isEmptyRedirectTo() ) {
+		$redirect_to = $requested_redirect_to = Request::getRedirectTo();
 	} else {
 		$redirect_to = 'wp-login.php?loggedout=true';
 		$requested_redirect_to = '';
@@ -518,7 +518,7 @@ case 'retrievepassword' :
 	if ( $http_post ) {
 		$errors = retrieve_password();
 		if ( !is_wp_error($errors) ) {
-			$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : 'wp-login.php?checkemail=confirm';
+			$redirect_to = !Request::isEmptyRedirectTo() ? Request::getRedirectTo() : 'wp-login.php?checkemail=confirm';
 			wp_safe_redirect( $redirect_to );
 			exit();
 		}
@@ -531,7 +531,7 @@ case 'retrievepassword' :
 			$errors->add( 'expiredkey', __( 'Sorry, that key has expired. Please try again.' ) );
 	}
 
-	$lostpassword_redirect = ! empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+	$lostpassword_redirect = !Request::isEmptyRedirectTo() ? Request::getRedirectTo() : '';
 	/**
 	 * Filter the URL redirected to after submitting the lostpassword/retrievepassword form.
 	 *
@@ -722,7 +722,7 @@ case 'register' :
 		}
 	}
 
-	$registration_redirect = ! empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+	$registration_redirect = !Request::isEmptyRedirectTo() ? Request::getRedirectTo() : '';
 	/**
 	 * Filter the registration redirect URL.
 	 *
@@ -784,8 +784,8 @@ default:
 		}
 	}
 
-	if ( isset( $_REQUEST['redirect_to'] ) ) {
-		$redirect_to = $_REQUEST['redirect_to'];
+	if ( Request::isSetRedirectTo() ) {
+		$redirect_to = Request::getRedirectTo();
 		// Redirect to https if user wants ssl
 		if ( $secure_cookie && false !== strpos($redirect_to, 'wp-admin') )
 			$redirect_to = preg_replace('|^http://|', 'https://', $redirect_to);
@@ -808,7 +808,7 @@ default:
 		}
 	}
 
-	$requested_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+	$requested_redirect_to = Request::isSetRedirectTo() ? Request::getRedirectTo() : '';
 	/**
 	 * Filter the login redirect URL.
 	 *

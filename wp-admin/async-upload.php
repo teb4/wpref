@@ -28,8 +28,8 @@ if ( ! ( Request::isSetAction() && 'upload-attachment' == Request::getAction() )
 		$_COOKIE[SECURE_AUTH_COOKIE] = Request::getAuthCookie();
 	elseif ( empty($_COOKIE[AUTH_COOKIE]) && !Request::isEmptyAuthCookie() )
 		$_COOKIE[AUTH_COOKIE] = Request::getAuthCookie();
-	if ( empty($_COOKIE[LOGGED_IN_COOKIE]) && !empty($_REQUEST['logged_in_cookie']) )
-		$_COOKIE[LOGGED_IN_COOKIE] = $_REQUEST['logged_in_cookie'];
+	if ( empty($_COOKIE[LOGGED_IN_COOKIE]) && !Request::isEmptyLoggedInCookie() )
+		$_COOKIE[LOGGED_IN_COOKIE] = Request::getLoggedInCookie();
 	unset($current_user);
 }
 
@@ -52,14 +52,14 @@ if ( ! current_user_can( 'upload_files' ) ) {
 }
 
 // just fetch the detail form for that attachment
-if ( isset($_REQUEST['attachment_id']) && ($id = intval($_REQUEST['attachment_id'])) && $_REQUEST['fetch'] ) {
+if ( Request::isSetAttachmentId() && ($id = intval(Request::getAttachmentId())) && Request::getFetch() ) {
 	$post = get_post( $id );
 	if ( 'attachment' != $post->post_type )
 		wp_die( __( 'Unknown post type.' ) );
 	if ( ! current_user_can( 'edit_post', $id ) )
 		wp_die( __( 'You are not allowed to edit this item.' ) );
 
-	switch ( $_REQUEST['fetch'] ) {
+	switch ( Request::getFetch() ) {
 		case 3 :
 			if ( $thumb_url = wp_get_attachment_image_src( $id, 'thumbnail', true ) )
 				echo '<img class="pinkynail" src="' . esc_url( $thumb_url[0] ) . '" alt="" />';
@@ -82,8 +82,8 @@ if ( isset($_REQUEST['attachment_id']) && ($id = intval($_REQUEST['attachment_id
 check_admin_referer('media-form');
 
 $post_id = 0;
-if ( isset( $_REQUEST['post_id'] ) ) {
-	$post_id = absint( $_REQUEST['post_id'] );
+if ( Request::isSetPostId() ) {
+	$post_id = absint( Request::getPostId() );
 	if ( ! get_post( $post_id ) || ! current_user_can( 'edit_post', $post_id ) )
 		$post_id = 0;
 }
@@ -102,7 +102,7 @@ if ( $_REQUEST['short'] ) {
 	echo $id;
 } else {
 	// Long form response - big chunk o html.
-	$type = $_REQUEST['type'];
+	$type = Request::getType();
 
 	/**
 	 * Filter the returned ID of an uploaded attachment.

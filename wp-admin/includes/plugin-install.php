@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /**
  * Retrieve plugin installer pages from WordPress Plugins API.
@@ -166,8 +168,8 @@ add_action( 'install_plugins_featured', 'install_dashboard' );
  * @since 2.7.0
  */
 function install_search_form( $type_selector = true ) {
-	$type = isset($_REQUEST['type']) ? wp_unslash( $_REQUEST['type'] ) : 'term';
-	$term = isset($_REQUEST['s']) ? wp_unslash( $_REQUEST['s'] ) : '';
+	$type = Request::isSetType() ? wp_unslash( Request::getType() ) : 'term';
+	$term = Request::isSetS() ? wp_unslash( Request::getS() ) : '';
 	$input_attrs = '';
 	$button_type = 'button screen-reader-text';
 

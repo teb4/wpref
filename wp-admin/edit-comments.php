@@ -30,8 +30,8 @@ if ( $doaction ) {
 	} elseif ( isset( $_REQUEST['delete_comments'] ) ) {
 		$comment_ids = $_REQUEST['delete_comments'];
 		$doaction = ( Request::getAction() != -1 ) ? Request::getAction() : $_REQUEST['action2'];
-	} elseif ( isset( $_REQUEST['ids'] ) ) {
-		$comment_ids = array_map( 'absint', explode( ',', $_REQUEST['ids'] ) );
+	} elseif ( Request::isSetIds() ) {
+		$comment_ids = array_map( 'absint', explode( ',', Request::getIds() ) );
 	} elseif ( wp_get_referer() ) {
 		wp_safe_redirect( wp_get_referer() );
 		exit;
@@ -154,8 +154,8 @@ if ( $post_id )
 else
 	echo __('Comments');
 
-if ( isset($_REQUEST['s']) && $_REQUEST['s'] )
-	echo '<span class="subtitle">' . sprintf( __( 'Search results for &#8220;%s&#8221;' ), wp_html_excerpt( esc_html( wp_unslash( $_REQUEST['s'] ) ), 50, '&hellip;' ) ) . '</span>'; ?>
+if ( Request::isSetS() && Request::getS() )
+	echo '<span class="subtitle">' . sprintf( __( 'Search results for &#8220;%s&#8221;' ), wp_html_excerpt( esc_html( wp_unslash(Request::getS() ) ), 50, '&hellip;' ) ) . '</span>'; ?>
 </h2>
 
 <?php
@@ -188,7 +188,7 @@ if ( isset($_REQUEST['approved']) || isset($_REQUEST['deleted']) || isset($_REQU
 			$messages[] = sprintf( _n( '%s comment approved', '%s comments approved', $approved ), $approved );
 
 		if ( $spammed > 0 ) {
-			$ids = isset($_REQUEST['ids']) ? $_REQUEST['ids'] : 0;
+			$ids = Request::isSetIds() ? Request::getIds() : 0;
 			$messages[] = sprintf( _n( '%s comment marked as spam.', '%s comments marked as spam.', $spammed ), $spammed ) . ' <a href="' . esc_url( wp_nonce_url( "edit-comments.php?doaction=undo&action=unspam&ids=$ids", "bulk-comments" ) ) . '">' . __('Undo') . '</a><br />';
 		}
 
@@ -196,7 +196,7 @@ if ( isset($_REQUEST['approved']) || isset($_REQUEST['deleted']) || isset($_REQU
 			$messages[] = sprintf( _n( '%s comment restored from the spam', '%s comments restored from the spam', $unspammed ), $unspammed );
 
 		if ( $trashed > 0 ) {
-			$ids = isset($_REQUEST['ids']) ? $_REQUEST['ids'] : 0;
+			$ids = Request::isSetIds() ? Request::getIds() : 0;
 			$messages[] = sprintf( _n( '%s comment moved to the Trash.', '%s comments moved to the Trash.', $trashed ), $trashed ) . ' <a href="' . esc_url( wp_nonce_url( "edit-comments.php?doaction=undo&action=untrash&ids=$ids", "bulk-comments" ) ) . '">' . __('Undo') . '</a><br />';
 		}
 

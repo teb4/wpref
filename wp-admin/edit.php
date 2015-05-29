@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -73,8 +75,8 @@ if ( $doaction ) {
 		$doaction = 'delete';
 	} elseif ( isset( $_REQUEST['media'] ) ) {
 		$post_ids = $_REQUEST['media'];
-	} elseif ( isset( $_REQUEST['ids'] ) ) {
-		$post_ids = explode( ',', $_REQUEST['ids'] );
+	} elseif (Request::isSetIds() ) {
+		$post_ids = explode( ',', Request::getIds() );
 	} elseif ( !empty( $_REQUEST['post'] ) ) {
 		$post_ids = array_map('intval', $_REQUEST['post']);
 	}
@@ -283,7 +285,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 echo esc_html( $post_type_object->labels->name );
 if ( current_user_can( $post_type_object->cap->create_posts ) )
 	echo ' <a href="' . esc_url( admin_url( $post_new_file ) ) . '" class="add-new-h2">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
-if ( ! empty( $_REQUEST['s'] ) )
+if ( !Request::isEmptyS() )
 	printf( ' <span class="subtitle">' . __('Search results for &#8220;%s&#8221;') . '</span>', get_search_query() );
 ?></h2>
 
@@ -296,8 +298,8 @@ foreach ( $bulk_counts as $message => $count ) {
 	elseif ( isset( $bulk_messages['post'][ $message ] ) )
 		$messages[] = sprintf( $bulk_messages['post'][ $message ], number_format_i18n( $count ) );
 
-	if ( $message == 'trashed' && isset( $_REQUEST['ids'] ) ) {
-		$ids = preg_replace( '/[^0-9,]/', '', $_REQUEST['ids'] );
+	if ( $message == 'trashed' && Request::isSetIds() ) {
+		$ids = preg_replace( '/[^0-9,]/', '', Request::getIds() );
 		$messages[] = '<a href="' . esc_url( wp_nonce_url( "edit.php?post_type=$post_type&doaction=undo&action=untrash&ids=$ids", "bulk-posts" ) ) . '">' . __('Undo') . '</a>';
 	}
 }

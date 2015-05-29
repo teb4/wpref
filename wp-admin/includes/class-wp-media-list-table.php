@@ -7,6 +7,9 @@
  * @since 3.1.0
  * @access private
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_Media_List_Table extends WP_List_Table {
 
 	private $detached;
@@ -48,7 +51,7 @@ class WP_Media_List_Table extends WP_List_Table {
 
  		$this->is_trash = isset( $_REQUEST['attachment-filter'] ) && 'trash' == $_REQUEST['attachment-filter'];
 
- 		$mode = empty( $_REQUEST['mode'] ) ? 'list' : $_REQUEST['mode'];
+ 		$mode = Request::isEmptyMode() ? 'list' : Request::getMode();
 
 		$this->set_pagination_args( array(
 			'total_items' => $wp_query->found_posts,

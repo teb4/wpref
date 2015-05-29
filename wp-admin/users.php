@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -103,7 +105,7 @@ case 'promote':
 	if ( ! current_user_can( 'promote_users' ) )
 		wp_die( __( 'You can&#8217;t edit that user.' ) );
 
-	if ( empty($_REQUEST['users']) ) {
+	if ( \wp\Request::isEmptyUsers() ) {
 		wp_redirect($redirect);
 		exit();
 	}
@@ -112,7 +114,7 @@ case 'promote':
 	if ( empty( $editable_roles[$_REQUEST['new_role']] ) )
 		wp_die(__('You can&#8217;t give users that role.'));
 
-	$userids = $_REQUEST['users'];
+	$userids = \wp\Request::getUsers();
 	$update = 'promote';
 	foreach ( $userids as $id ) {
 		$id = (int) $id;
@@ -143,12 +145,12 @@ case 'dodelete':
 
 	check_admin_referer('delete-users');
 
-	if ( empty($_REQUEST['users']) ) {
+	if ( \wp\Request::isEmptyUsers() ) {
 		wp_redirect($redirect);
 		exit();
 	}
 
-	$userids = array_map( 'intval', (array) $_REQUEST['users'] );
+	$userids = array_map( 'intval', (array) \wp\Request::getUsers() );
 
 	if ( empty( $_REQUEST['delete_option'] ) ) {
 		$url = self_admin_url( 'users.php?action=delete&users[]=' . implode( '&users[]=', $userids ) . '&error=true' );
@@ -192,7 +194,7 @@ case 'delete':
 
 	check_admin_referer('bulk-users');
 
-	if ( empty($_REQUEST['users']) && empty($_REQUEST['user']) ) {
+	if ( \wp\Request::isEmptyUsers() && empty($_REQUEST['user']) ) {
 		wp_redirect($redirect);
 		exit();
 	}
@@ -200,10 +202,10 @@ case 'delete':
 	if ( ! current_user_can( 'delete_users' ) )
 		$errors = new WP_Error( 'edit_users', __( 'You can&#8217;t delete users.' ) );
 
-	if ( empty($_REQUEST['users']) )
+	if ( \wp\Request::isEmptyUsers() )
 		$userids = array( intval( $_REQUEST['user'] ) );
 	else
-		$userids = array_map( 'intval', (array) $_REQUEST['users'] );
+		$userids = array_map( 'intval', (array) \wp\Request::getUsers() );
 
 	add_action( 'admin_head', 'delete_users_add_js' );
 
@@ -281,7 +283,7 @@ case 'doremove':
 	if ( ! is_multisite() )
 		wp_die( __( 'You can&#8217;t remove users.' ) );
 
-	if ( empty($_REQUEST['users']) ) {
+	if ( \wp\Request::isEmptyUsers() ) {
 		wp_redirect($redirect);
 		exit;
 	}
@@ -289,7 +291,7 @@ case 'doremove':
 	if ( ! current_user_can( 'remove_users' ) )
 		wp_die( __( 'You can&#8217;t remove users.' ) );
 
-	$userids = $_REQUEST['users'];
+	$userids = \wp\Request::getUsers();
 
 	$update = 'remove';
  	foreach ( $userids as $id ) {
@@ -316,7 +318,7 @@ case 'remove':
 	if ( ! is_multisite() )
 		wp_die( __( 'You can&#8217;t remove users.' ) );
 
-	if ( empty($_REQUEST['users']) && empty($_REQUEST['user']) ) {
+	if ( \wp\Request::isEmptyUsers() && empty($_REQUEST['user']) ) {
 		wp_redirect($redirect);
 		exit();
 	}
@@ -324,10 +326,10 @@ case 'remove':
 	if ( !current_user_can('remove_users') )
 		$error = new WP_Error('edit_users', __('You can&#8217;t remove users.'));
 
-	if ( empty($_REQUEST['users']) )
+	if ( \wp\Request::isEmptyUsers() )
 		$userids = array(intval($_REQUEST['user']));
 	else
-		$userids = $_REQUEST['users'];
+		$userids = \wp\Request::getUsers();
 
 	include( ABSPATH . 'wp-admin/admin-header.php' );
 ?>

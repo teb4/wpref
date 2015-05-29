@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -102,8 +104,8 @@ if ( $doaction ) {
 		$doaction = 'delete';
 	} elseif ( isset( $_REQUEST['media'] ) ) {
 		$post_ids = $_REQUEST['media'];
-	} elseif ( isset( $_REQUEST['ids'] ) ) {
-		$post_ids = explode( ',', $_REQUEST['ids'] );
+	} elseif ( Request::isSetIds() ) {
+		$post_ids = explode( ',', Request::getIds() );
 	}
 
 	$location = 'upload.php';
@@ -212,7 +214,7 @@ echo esc_html( $title );
 if ( current_user_can( 'upload_files' ) ) { ?>
 	<a href="media-new.php" class="add-new-h2"><?php echo esc_html_x('Add New', 'file'); ?></a><?php
 }
-if ( ! empty( $_REQUEST['s'] ) )
+if ( !Request::isEmptyS() )
 	printf( '<span class="subtitle">' . __('Search results for &#8220;%s&#8221;') . '</span>', get_search_query() ); ?>
 </h2>
 

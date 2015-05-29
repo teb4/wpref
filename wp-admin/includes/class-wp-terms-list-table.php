@@ -90,7 +90,7 @@ class WP_Terms_List_Table extends WP_List_Table {
 			$tags_per_page = apply_filters( 'edit_categories_per_page', $tags_per_page );
 		}
 
-		$search = !empty( $_REQUEST['s'] ) ? trim( wp_unslash( $_REQUEST['s'] ) ) : '';
+		$search = !Request::isEmptyS() ? trim( wp_unslash( Request::getS() ) ) : '';
 
 		$args = array(
 			'search' => $search,
@@ -230,11 +230,11 @@ class WP_Terms_List_Table extends WP_List_Table {
 			if ( $count >= $end )
 				break;
 
-			if ( $term->parent != $parent && empty( $_REQUEST['s'] ) )
+			if ( $term->parent != $parent && Request::isEmptyS() )
 				continue;
 
 			// If the page starts in a subtree, print the parents.
-			if ( $count == $start && $term->parent > 0 && empty( $_REQUEST['s'] ) ) {
+			if ( $count == $start && $term->parent > 0 && Request::isEmptyS() ) {
 				$my_parents = $parent_ids = array();
 				$p = $term->parent;
 				while ( $p ) {
@@ -264,7 +264,7 @@ class WP_Terms_List_Table extends WP_List_Table {
 
 			unset( $terms[$key] );
 
-			if ( isset( $children[$term->term_id] ) && empty( $_REQUEST['s'] ) )
+			if ( isset( $children[$term->term_id] ) && Request::isEmptyS() )
 				$this->_rows( $taxonomy, $terms, $children, $start, $per_page, $count, $term->term_id, $level + 1 );
 		}
 	}

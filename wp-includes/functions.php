@@ -5,6 +5,9 @@
  * @package WordPress
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 require( ABSPATH . WPINC . '/option.php' );
 
 /**
@@ -2320,7 +2323,7 @@ function get_allowed_mime_types( $user = null ) {
 function wp_nonce_ays( $action ) {
 	if ( 'log-out' == $action ) {
 		$html = sprintf( __( 'You are attempting to log out of %s' ), get_bloginfo( 'name' ) ) . '</p><p>';
-		$redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+		$redirect_to = Request::isSetRedirectTo() ? Request::getRedirectTo() : '';
 		$html .= sprintf( __( "Do you really want to <a href='%s'>log out</a>?"), wp_logout_url( $redirect_to ) );
 	} else {
 		$html = __( 'Are you sure you want to do this?' );

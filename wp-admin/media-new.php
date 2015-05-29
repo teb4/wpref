@@ -8,6 +8,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /** Load WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -18,8 +20,8 @@ if (!current_user_can('upload_files'))
 wp_enqueue_script('plupload-handlers');
 
 $post_id = 0;
-if ( isset( $_REQUEST['post_id'] ) ) {
-	$post_id = absint( $_REQUEST['post_id'] );
+if ( Request::isSetPostId() ) {
+	$post_id = absint( Request::getPostId() );
 	if ( ! get_post( $post_id ) || ! current_user_can( 'edit_post', $post_id ) )
 		$post_id = 0;
 }

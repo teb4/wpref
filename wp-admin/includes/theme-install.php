@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 $themes_allowedtags = array('a' => array('href' => array(), 'title' => array(), 'target' => array()),
 	'abbr' => array('title' => array()), 'acronym' => array('title' => array()),
@@ -52,8 +54,8 @@ function install_themes_feature_list() {
  * @since 2.8.0
  */
 function install_theme_search_form( $type_selector = true ) {
-	$type = isset( $_REQUEST['type'] ) ? wp_unslash( $_REQUEST['type'] ) : 'term';
-	$term = isset( $_REQUEST['s'] ) ? wp_unslash( $_REQUEST['s'] ) : '';
+	$type = Request::isSetType() ? wp_unslash( Request::getType() ) : 'term';
+	$term = Request::isSetS() ? wp_unslash( Request::getS() ) : '';
 	if ( ! $type_selector )
 		echo '<p class="install-help">' . __( 'Search for themes by keyword.' ) . '</p>';
 	?>

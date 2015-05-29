@@ -9,6 +9,9 @@
  * @subpackage Administration
  */
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 if ( ! isset( $_GET['inline'] ) )
 	define( 'IFRAME_REQUEST' , true );
 
@@ -35,7 +38,7 @@ if ( isset($action) && $action == 'edit' && !$ID ) {
 	wp_die( __( 'Cheatin&#8217; uh?' ), 403 );
 }
 
-if ( ! empty( $_REQUEST['post_id'] ) && ! current_user_can( 'edit_post' , $_REQUEST['post_id'] ) ) {
+if ( !Request::isEmptyPostId() && ! current_user_can( 'edit_post' , Request::getPostId() ) ) {
 	wp_die( __( 'Cheatin&#8217; uh?' ), 403 );
 }
 

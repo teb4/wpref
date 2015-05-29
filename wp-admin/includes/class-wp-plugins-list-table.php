@@ -7,6 +7,9 @@
  * @since 3.1.0
  * @access private
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class WP_Plugins_List_Table extends WP_List_Table {
 
 	/**
@@ -31,8 +34,8 @@ class WP_Plugins_List_Table extends WP_List_Table {
 		if ( isset( $_REQUEST['plugin_status'] ) && in_array( $_REQUEST['plugin_status'], array( 'active', 'inactive', 'recently_activated', 'upgrade', 'mustuse', 'dropins', 'search' ) ) )
 			$status = $_REQUEST['plugin_status'];
 
-		if ( isset($_REQUEST['s']) )
-			$_SERVER['REQUEST_URI'] = add_query_arg('s', wp_unslash($_REQUEST['s']) );
+		if ( Request::isSetS() )
+			$_SERVER['REQUEST_URI'] = add_query_arg('s', wp_unslash(Request::getS()) );
 
 		$page = $this->get_pagenum();
 	}
@@ -208,7 +211,7 @@ class WP_Plugins_List_Table extends WP_List_Table {
 	public function _search_callback( $plugin ) {
 		static $term;
 		if ( is_null( $term ) )
-			$term = wp_unslash( $_REQUEST['s'] );
+			$term = wp_unslash(Request::getS() );
 
 		foreach ( $plugin as $value ) {
 			if ( false !== stripos( strip_tags( $value ), $term ) ) {

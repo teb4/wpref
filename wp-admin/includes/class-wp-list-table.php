@@ -323,7 +323,7 @@ class WP_List_Table {
 	 * @param string $input_id The search input id
 	 */
 	public function search_box( $text, $input_id ) {
-		if ( empty( $_REQUEST['s'] ) && !$this->has_items() )
+		if ( Request::isEmptyS() && !$this->has_items() )
 			return;
 
 		$input_id = $input_id . '-search-input';

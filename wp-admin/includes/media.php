@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /**
  * Defines the default media upload tabs
@@ -42,12 +44,12 @@ function media_upload_tabs() {
 function update_gallery_tab($tabs) {
 	global $wpdb;
 
-	if ( !isset($_REQUEST['post_id']) ) {
+	if ( !Request::isSetPostId() ) {
 		unset($tabs['gallery']);
 		return $tabs;
 	}
 
-	$post_id = intval($_REQUEST['post_id']);
+	$post_id = intval(Request::getPostId());
 
 	if ( $post_id )
 		$attachments = intval( $wpdb->get_var( $wpdb->prepare( "SELECT count(*) FROM $wpdb->posts WHERE post_type = 'attachment' AND post_status != 'trash' AND post_parent = %d", $post_id ) ) );
@@ -733,7 +735,7 @@ function wp_media_upload_handler() {
 	if ( isset($_POST['html-upload']) && !empty($_FILES) ) {
 		check_admin_referer('media-form');
 		// Upload File button was clicked
-		$id = media_handle_upload('async-upload', $_REQUEST['post_id']);
+		$id = media_handle_upload('async-upload', Request::getPostId());
 		unset($_FILES);
 		if ( is_wp_error($id) ) {
 			$errors['upload_error'] = $id;
@@ -1550,8 +1552,8 @@ function get_media_item( $attachment_id, $args = null ) {
 	foreach ( $hidden_fields as $name => $value )
 		$item .= "\t<input type='hidden' name='$name' id='$name' value='" . esc_attr( $value ) . "' />\n";
 
-	if ( $post->post_parent < 1 && isset( $_REQUEST['post_id'] ) ) {
-		$parent = (int) $_REQUEST['post_id'];
+	if ( $post->post_parent < 1 && Request::isSetPostId() ) {
+		$parent = (int) Request::getPostId();
 		$parent_name = "attachments[$attachment_id][post_parent]";
 		$item .= "\t<input type='hidden' name='$parent_name' id='$parent_name' value='$parent' />\n";
 	}
@@ -1714,7 +1716,7 @@ function get_compat_media_markup( $attachment_id, $args = null ) {
  * @since 2.5.0
  */
 function media_upload_header() {
-	$post_id = isset( $_REQUEST['post_id'] ) ? intval( $_REQUEST['post_id'] ) : 0;
+	$post_id = Request::isSetPostId() ? intval( Request::getPostId() ) : 0;
 	echo '<script type="text/javascript">post_id = ' . $post_id . ";</script>\n";
 	if ( empty( $_GET['chromeless'] ) ) {
 		echo '<div id="media-upload-header">';
@@ -1739,7 +1741,7 @@ function media_upload_form( $errors = null ) {
 	}
 
 	$upload_action_url = admin_url('async-upload.php');
-	$post_id = isset($_REQUEST['post_id']) ? intval($_REQUEST['post_id']) : 0;
+	$post_id = Request::isSetPostId() ? intval(Request::getPostId()) : 0;
 	$_type = isset($type) ? $type : '';
 	$_tab = isset($tab) ? $tab : '';
 
@@ -1923,7 +1925,7 @@ function media_upload_type_form($type = 'file', $errors = null, $id = null) {
 
 	media_upload_header();
 
-	$post_id = isset( $_REQUEST['post_id'] )? intval( $_REQUEST['post_id'] ) : 0;
+	$post_id = Request::isSetPostId()? intval( Request::getPostId() ) : 0;
 
 	$form_action_url = admin_url("media-upload.php?type=$type&tab=type&post_id=$post_id");
 
@@ -1995,7 +1997,7 @@ function media_upload_type_url_form($type = null, $errors = null, $id = null) {
 
 	media_upload_header();
 
-	$post_id = isset( $_REQUEST['post_id'] ) ? intval( $_REQUEST['post_id'] ) : 0;
+	$post_id = Request::isSetPostId() ? intval( Request::getPostId() ) : 0;
 
 	$form_action_url = admin_url("media-upload.php?type=$type&tab=type&post_id=$post_id");
 	/** This filter is documented in wp-admin/includes/media.php */
@@ -2135,7 +2137,7 @@ function media_upload_gallery_form($errors) {
 	$redir_tab = 'gallery';
 	media_upload_header();
 
-	$post_id = intval($_REQUEST['post_id']);
+	$post_id = intval(Request::getPostId());
 	$form_action_url = admin_url("media-upload.php?type=$type&tab=gallery&post_id=$post_id");
 	/** This filter is documented in wp-admin/includes/media.php */
 	$form_action_url = apply_filters( 'media_upload_form_url', $form_action_url, $type );
@@ -2279,7 +2281,7 @@ function media_upload_library_form($errors) {
 
 	media_upload_header();
 
-	$post_id = isset( $_REQUEST['post_id'] ) ? intval( $_REQUEST['post_id'] ) : 0;
+	$post_id = Request::isSetPostId() ? intval( Request::getPostId() ) : 0;
 
 	$form_action_url = admin_url("media-upload.php?type=$type&tab=library&post_id=$post_id");
 	/** This filter is documented in wp-admin/includes/media.php */

@@ -986,11 +986,11 @@ function wp_ajax_replyto_comment( $action ) {
 	$position = ( isset($_POST['position']) && (int) $_POST['position'] ) ? (int) $_POST['position'] : '-1';
 
 	ob_start();
-	if ( isset( $_REQUEST['mode'] ) && 'dashboard' == $_REQUEST['mode'] ) {
+	if ( Request::isSetMode() && 'dashboard' == Request::getMode() ) {
 		require_once( ABSPATH . 'wp-admin/includes/dashboard.php' );
 		_wp_dashboard_recent_comments_row( $comment );
 	} else {
-		if ( isset( $_REQUEST['mode'] ) && 'single' == $_REQUEST['mode'] ) {
+		if ( Request::isSetMode() && 'single' == Request::getMode() ) {
 			$wp_list_table = _get_list_table('WP_Post_Comments_List_Table', array( 'screen' => 'edit-comments' ) );
 		} else {
 			$wp_list_table = _get_list_table('WP_Comments_List_Table', array( 'screen' => 'edit-comments' ) );
@@ -1865,8 +1865,8 @@ function wp_ajax_upload_attachment() {
 		wp_die();
 	}
 
-	if ( isset( $_REQUEST['post_id'] ) ) {
-		$post_id = $_REQUEST['post_id'];
+	if ( Request::isSetPostId() ) {
+		$post_id = Request::getPostId();
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			echo wp_json_encode( array(
 				'success' => false,
@@ -2373,10 +2373,10 @@ function wp_ajax_save_attachment_compat() {
  * @since 3.5.0
  */
 function wp_ajax_save_attachment_order() {
-	if ( ! isset( $_REQUEST['post_id'] ) )
+	if ( !Request::isSetPostId() )
 		wp_send_json_error();
 
-	if ( ! $post_id = absint( $_REQUEST['post_id'] ) )
+	if ( ! $post_id = absint( Request::getPostId() ) )
 		wp_send_json_error();
 
 	if ( empty( $_REQUEST['attachments'] ) )
@@ -2600,7 +2600,7 @@ function wp_ajax_heartbeat() {
 function wp_ajax_get_revision_diffs() {
 	require ABSPATH . 'wp-admin/includes/revision.php';
 
-	if ( ! $post = get_post( (int) $_REQUEST['post_id'] ) )
+	if ( ! $post = get_post( (int) Request::getPostId() ) )
 		wp_send_json_error();
 
 	if ( ! current_user_can( 'read_post', $post->ID ) )
@@ -2826,7 +2826,7 @@ function wp_ajax_parse_media_shortcode() {
 
 	echo $parsed;
 
-	if ( 'playlist' === $_REQUEST['type'] ) {
+	if ( 'playlist' === Request::getType() ) {
 		wp_underscore_playlist_templates();
 
 		wp_print_scripts( 'wp-playlist' );
