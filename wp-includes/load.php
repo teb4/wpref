@@ -6,6 +6,8 @@
  *
  * @package WordPress
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /**
  * Turn register globals off.
@@ -19,7 +21,7 @@ function wp_unregister_GLOBALS() {
 	if ( !ini_get( 'register_globals' ) )
 		return;
 
-	if ( isset( $_REQUEST['GLOBALS'] ) )
+	if ( Request::isSetGLOBALS() )
 		die( 'GLOBALS overwrite attempt detected' );
 
 	// Variables that shouldn't be unset
@@ -595,7 +597,7 @@ function wp_magic_quotes() {
 	$_SERVER = add_magic_quotes( $_SERVER );
 
 	// Force REQUEST to be GET + POST.
-	$_REQUEST = array_merge( $_GET, $_POST );
+	Request::merge();
 }
 
 /**

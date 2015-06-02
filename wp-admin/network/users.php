@@ -204,8 +204,8 @@ if ( isset( $_GET['action'] ) ) {
 			} else {
 				$location = network_admin_url( 'users.php' );
 
-				if ( ! empty( $_REQUEST['paged'] ) )
-					$location = add_query_arg( 'paged', (int) $_REQUEST['paged'], $location );
+				if ( !Request::isEmptyPaged() )
+					$location = add_query_arg( 'paged', (int) Request::getPaged(), $location );
 				wp_redirect( $location );
 			}
 			exit();
@@ -281,7 +281,7 @@ get_current_screen()->set_help_sidebar(
 
 require_once( ABSPATH . 'wp-admin/admin-header.php' );
 
-if ( isset( $_REQUEST['updated'] ) && $_REQUEST['updated'] == 'true' && !Request::isEmptyAction() ) {
+if ( Request::isSetUpdated() && Request::getUpdated() == 'true' && !Request::isEmptyAction() ) {
 	?>
 	<div id="message" class="updated notice is-dismissible"><p>
 		<?php

@@ -79,7 +79,7 @@ class WP_Users_List_Table extends WP_List_Table {
 
 		$usersearch = Request::isSetS() ? wp_unslash( trim( Request::getS() ) ) : '';
 
-		$role = isset( $_REQUEST['role'] ) ? $_REQUEST['role'] : '';
+		$role = Request::isSetRole() ? Request::getRole() : '';
 
 		$per_page = ( $this->is_site_users ) ? 'site_users_network_per_page' : 'users_per_page';
 		$users_per_page = $this->get_items_per_page( $per_page );
@@ -100,11 +100,11 @@ class WP_Users_List_Table extends WP_List_Table {
 		if ( $this->is_site_users )
 			$args['blog_id'] = $this->site_id;
 
-		if ( isset( $_REQUEST['orderby'] ) )
-			$args['orderby'] = $_REQUEST['orderby'];
+		if ( Request::isSetOrderBy() )
+			$args['orderby'] = Request::getOrderBy();
 
-		if ( isset( $_REQUEST['order'] ) )
-			$args['order'] = $_REQUEST['order'];
+		if ( Request::isSetOrder() )
+			$args['order'] = Request::getOrder();
 
 		// Query the user IDs for this page
 		$wp_user_search = new WP_User_Query( $args );
@@ -245,7 +245,7 @@ class WP_Users_List_Table extends WP_List_Table {
 	 * @return string The bulk action required.
 	 */
 	public function current_action() {
-		if ( isset($_REQUEST['changeit']) && !empty($_REQUEST['new_role']) )
+		if ( Request::isSetChangeIt() && !Request::isEmptyNewRole() )
 			return 'promote';
 
 		return parent::current_action();

@@ -18,11 +18,11 @@ $wp_list_table = _get_list_table('WP_Links_List_Table');
 // Handle bulk deletes
 $doaction = $wp_list_table->current_action();
 
-if ( $doaction && isset( $_REQUEST['linkcheck'] ) ) {
+if ( $doaction && Request::isSetLinkcheck() ) {
 	check_admin_referer( 'bulk-bookmarks' );
 
 	if ( 'delete' == $doaction ) {
-		$bulklinks = (array) $_REQUEST['linkcheck'];
+		$bulklinks = (array) Request::getLinkcheck();
 		foreach ( $bulklinks as $link_id ) {
 			$link_id = (int) $link_id;
 
@@ -77,9 +77,9 @@ if ( !Request::isEmptyS() )
 </h2>
 
 <?php
-if ( isset($_REQUEST['deleted']) ) {
+if ( Request::isSetDeleted() ) {
 	echo '<div id="message" class="updated notice is-dismissible"><p>';
-	$deleted = (int) $_REQUEST['deleted'];
+	$deleted = (int) Request::getDeleted();
 	printf(_n('%s link deleted.', '%s links deleted', $deleted), $deleted);
 	echo '</p></div>';
 	$_SERVER['REQUEST_URI'] = remove_query_arg(array('deleted'), $_SERVER['REQUEST_URI']);

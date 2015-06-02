@@ -36,7 +36,7 @@ class WP_MS_Themes_List_Table extends WP_List_Table {
 			'screen' => isset( $args['screen'] ) ? $args['screen'] : null,
 		) );
 
-		$status = isset( $_REQUEST['theme_status'] ) ? $_REQUEST['theme_status'] : 'all';
+		$status = Request::isSetThemeStatus() ? Request::getThemeStatus() : 'all';
 		if ( !in_array( $status, array( 'all', 'enabled', 'disabled', 'upgrade', 'search', 'broken' ) ) )
 			$status = 'all';
 

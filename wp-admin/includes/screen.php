@@ -1153,7 +1153,7 @@ final class WP_Screen {
 		}
 
 		if ( 'edit_comments_per_page' == $option ) {
-			$comment_status = isset( $_REQUEST['comment_status'] ) ? $_REQUEST['comment_status'] : 'all';
+			$comment_status = Request::isSetCommentStatus() ? Request::getCommentStatus() : 'all';
 
 			/** This filter is documented in wp-admin/includes/class-wp-comments-list-table.php */
 			$per_page = apply_filters( 'comments_per_page', $per_page, $comment_status );

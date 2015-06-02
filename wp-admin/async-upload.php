@@ -97,7 +97,7 @@ if ( is_wp_error($id) ) {
 	exit;
 }
 
-if ( $_REQUEST['short'] ) {
+if ( Request::getShort() ) {
 	// Short form response - attachment ID only.
 	echo $id;
 } else {

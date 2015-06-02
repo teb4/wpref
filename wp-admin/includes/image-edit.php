@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /**
  * Loads the WP image-editing interface.
@@ -565,7 +567,7 @@ function stream_preview_image( $post_id ) {
     if ( is_wp_error( $img ) )
         return false;
 
-	$changes = !empty($_REQUEST['history']) ? json_decode( wp_unslash($_REQUEST['history']) ) : null;
+	$changes = !Request::isEmptyHistory() ? json_decode( wp_unslash(Request::getHistory()) ) : null;
 	if ( $changes )
 		$img = image_edit_apply_changes( $img, $changes );
 
@@ -688,10 +690,10 @@ function wp_save_image( $post_id ) {
 		return $return;
 	}
 
-	$fwidth = !empty($_REQUEST['fwidth']) ? intval($_REQUEST['fwidth']) : 0;
-	$fheight = !empty($_REQUEST['fheight']) ? intval($_REQUEST['fheight']) : 0;
-	$target = !empty($_REQUEST['target']) ? preg_replace('/[^a-z0-9_-]+/i', '', $_REQUEST['target']) : '';
-	$scale = !empty($_REQUEST['do']) && 'scale' == $_REQUEST['do'];
+	$fwidth = !Request::isEmptyFwidth() ? intval(Request::getFwidth()) : 0;
+	$fheight = !Request::isEmptyFheight() ? intval(Request::getFheight()) : 0;
+	$target = !Request::isEmptyTarget() ? preg_replace('/[^a-z0-9_-]+/i', '', Request::getTarget()) : '';
+	$scale = !Request::isEmptyDo() && 'scale' == Request::getDo();
 
 	if ( $scale && $fwidth > 0 && $fheight > 0 ) {
 		$size = $img->get_size();
@@ -710,8 +712,8 @@ function wp_save_image( $post_id ) {
 			$return->error = esc_js( __('Error while saving the scaled image. Please reload the page and try again.') );
 			return $return;
 		}
-	} elseif ( !empty($_REQUEST['history']) ) {
-		$changes = json_decode( wp_unslash($_REQUEST['history']) );
+	} elseif ( !Request::isEmptyHistory() ) {
+		$changes = json_decode( wp_unslash(Request::getHistory()) );
 		if ( $changes )
 			$img = image_edit_apply_changes($img, $changes);
 	} else {
@@ -836,7 +838,7 @@ function wp_save_image( $post_id ) {
 
 		if ( $target == 'thumbnail' || $target == 'all' || $target == 'full' ) {
 			// Check if it's an image edit from attachment edit screen
-			if ( ! empty( $_REQUEST['context'] ) && 'edit-attachment' == $_REQUEST['context'] ) {
+			if ( !Request::isEmptyContext() && 'edit-attachment' == Request::getContext() ) {
 				$thumb_url = wp_get_attachment_image_src( $post_id, array( 900, 600 ), true );
 				$return->thumbnail = $thumb_url[0];
 			} else {

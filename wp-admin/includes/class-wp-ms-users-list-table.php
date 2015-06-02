@@ -23,7 +23,7 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 
 		$users_per_page = $this->get_items_per_page( 'users_network_per_page' );
 
-		$role = isset( $_REQUEST['role'] ) ? $_REQUEST['role'] : '';
+		$role = Request::isSetRole() ? Request::getRole() : '';
 
 		$paged = $this->get_pagenum();
 
@@ -49,18 +49,22 @@ class WP_MS_Users_List_Table extends WP_List_Table {
 		 * expensive count queries.
 		 */
 		if ( !$usersearch && wp_is_large_network( 'users' ) ) {
-			if ( !isset($_REQUEST['orderby']) )
-				$_GET['orderby'] = $_REQUEST['orderby'] = 'id';
-			if ( !isset($_REQUEST['order']) )
-				$_GET['order'] = $_REQUEST['order'] = 'DESC';
+			if ( !Request::isSetOrderBy() ){
+                            Request::setOrderBy( 'id' );
+                                $_GET['orderby'] = 'id';
+                        }
+			if ( !Request::isSetOrder() ){
+                            Request::setOrder( 'DESC' );
+                                $_GET['order'] = 'DESC';
+                        }
 			$args['count_total'] = false;
 		}
 
-		if ( isset( $_REQUEST['orderby'] ) )
-			$args['orderby'] = $_REQUEST['orderby'];
+		if ( Request::isSetOrderBy() )
+			$args['orderby'] = Request::getOrderBy();
 
-		if ( isset( $_REQUEST['order'] ) )
-			$args['order'] = $_REQUEST['order'];
+		if ( Request::isSetOrder() )
+			$args['order'] = Request::getOrder();
 
 		$mode = Request::isEmptyMode() ? 'list' : Request::getMode();
 

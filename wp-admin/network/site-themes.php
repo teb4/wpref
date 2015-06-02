@@ -47,8 +47,8 @@ $temp_args = array( 'enabled', 'disabled', 'error' );
 $_SERVER['REQUEST_URI'] = remove_query_arg( $temp_args, $_SERVER['REQUEST_URI'] );
 $referer = remove_query_arg( $temp_args, wp_get_referer() );
 
-if ( ! empty( $_REQUEST['paged'] ) ) {
-	$referer = add_query_arg( 'paged', (int) $_REQUEST['paged'], $referer );
+if ( !Request::isEmptyPaged() ) {
+	$referer = add_query_arg( 'paged', (int) Request::getPaged(), $referer );
 }
 
 $id = Request::isSetId() ? intval( Request::getId() ) : 0;

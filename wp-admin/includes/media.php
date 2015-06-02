@@ -1377,7 +1377,7 @@ function get_media_item( $attachment_id, $args = null ) {
 	$display_title = ( !empty( $title ) ) ? $title : $filename; // $title shouldn't ever be empty, but just in case
 	$display_title = $r['show_title'] ? "<div class='filename new'><span class='title'>" . wp_html_excerpt( $display_title, 60, '&hellip;' ) . "</span></div>" : '';
 
-	$gallery = ( ( isset( $_REQUEST['tab'] ) && 'gallery' == $_REQUEST['tab'] ) || ( isset( $redir_tab ) && 'gallery' == $redir_tab ) );
+	$gallery = ( ( Request::isSetTab() && 'gallery' == Request::getTab() ) || ( isset( $redir_tab ) && 'gallery' == $redir_tab ) );
 	$order = '';
 
 	foreach ( $form_fields as $key => $val ) {
@@ -3046,7 +3046,7 @@ function wp_media_attach_action( $parent_id, $action = 'attach' ) {
 		wp_die( __( 'You are not allowed to edit this post.' ) );
 	}
 	$ids = array();
-	foreach ( (array) $_REQUEST['media'] as $att_id ) {
+	foreach ( (array) Request::getMedia() as $att_id ) {
 		$att_id = (int) $att_id;
 
 		if ( ! current_user_can( 'edit_post', $att_id ) ) {

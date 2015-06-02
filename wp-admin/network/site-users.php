@@ -42,8 +42,8 @@ get_current_screen()->set_help_sidebar(
 $_SERVER['REQUEST_URI'] = remove_query_arg( 'update', $_SERVER['REQUEST_URI'] );
 $referer = remove_query_arg( 'update', wp_get_referer() );
 
-if ( ! empty( $_REQUEST['paged'] ) ) {
-	$referer = add_query_arg( 'paged', (int) $_REQUEST['paged'], $referer );
+if ( !Request::isEmptyPaged() ) {
+	$referer = add_query_arg( 'paged', (int) Request::getPaged(), $referer );
 }
 
 $id = Request::isSetId() ? intval( Request::getId() ) : 0;
@@ -125,7 +125,7 @@ if ( $action ) {
 		case 'promote':
 			check_admin_referer( 'bulk-users' );
 			$editable_roles = get_editable_roles();
-			if ( empty( $editable_roles[$_REQUEST['new_role']] ) )
+			if ( empty( $editable_roles[Request::getNewRole()] ) )
 				wp_die(__('You can&#8217;t give users that role.'));
 
 			if ( Request::isSetUsers() ) {
@@ -139,7 +139,7 @@ if ( $action ) {
 						wp_die( __( 'Cheatin&#8217; uh?' ), 403 );
 
 					$user = get_userdata( $user_id );
-					$user->set_role( $_REQUEST['new_role'] );
+					$user->set_role( Request::getNewRole() );
 				}
 			} else {
 				$update = 'err_promote';

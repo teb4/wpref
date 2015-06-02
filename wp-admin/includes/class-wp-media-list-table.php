@@ -27,7 +27,7 @@ class WP_Media_List_Table extends WP_List_Table {
 	 * @param array $args An associative array of arguments.
 	 */
 	public function __construct( $args = array() ) {
-		$this->detached = ( isset( $_REQUEST['attachment-filter'] ) && 'detached' === $_REQUEST['attachment-filter'] );
+		$this->detached = ( Request::isSetAttachmentFilter() && 'detached' === Request::getAttachmentFilter() );
 
 		$this->modes = array(
 			'list' => __( 'List View' ),
@@ -47,9 +47,9 @@ class WP_Media_List_Table extends WP_List_Table {
 	public function prepare_items() {
 		global $wp_query, $post_mime_types, $avail_post_mime_types, $mode;
 
-		list( $post_mime_types, $avail_post_mime_types ) = wp_edit_attachments_query( $_REQUEST );
+		list( $post_mime_types, $avail_post_mime_types ) = wp_edit_attachments_query( Request::getArray() );
 
- 		$this->is_trash = isset( $_REQUEST['attachment-filter'] ) && 'trash' == $_REQUEST['attachment-filter'];
+ 		$this->is_trash = Request::isSetAttachmentFilter() && 'trash' == Request::getAttachmentFilter();
 
  		$mode = Request::isEmptyMode() ? 'list' : Request::getMode();
 
@@ -139,13 +139,13 @@ class WP_Media_List_Table extends WP_List_Table {
 	}
 
 	public function current_action() {
-		if ( isset( $_REQUEST['found_post_id'] ) && isset( $_REQUEST['media'] ) )
+		if ( Request::isSetFoundPostId() && Request::isSetMedia() )
 			return 'attach';
 
-		if ( isset( $_REQUEST['parent_post_id'] ) && isset( $_REQUEST['media'] ) )
+		if ( Request::isSetParentPostId() && Request::isSetMedia() )
 			return 'detach';
 
-		if ( isset( $_REQUEST['delete_all'] ) || isset( $_REQUEST['delete_all2'] ) )
+		if ( Request::isSetDeleteAll() || Request::isSetDeleteAll2() )
 			return 'delete_all';
 
 		return parent::current_action();

@@ -102,8 +102,8 @@ if ( $doaction ) {
 	if ( 'delete_all' == $doaction ) {
 		$post_ids = $wpdb->get_col( "SELECT ID FROM $wpdb->posts WHERE post_type='attachment' AND post_status = 'trash'" );
 		$doaction = 'delete';
-	} elseif ( isset( $_REQUEST['media'] ) ) {
-		$post_ids = $_REQUEST['media'];
+	} elseif (Request::isSetMedia() ) {
+		$post_ids = Request::getMedia();
 	} elseif ( Request::isSetIds() ) {
 		$post_ids = explode( ',', Request::getIds() );
 	}
@@ -116,11 +116,11 @@ if ( $doaction ) {
 
 	switch ( $doaction ) {
 		case 'detach':
-			wp_media_attach_action( $_REQUEST['parent_post_id'], 'detach' );
+			wp_media_attach_action( Request::getParentPostId(), 'detach' );
 			break;
 
 		case 'attach':
-			wp_media_attach_action( $_REQUEST['found_post_id'] );
+			wp_media_attach_action( Request::getFoundPostId() );
 			break;
 
 		case 'trash':

@@ -14,6 +14,9 @@
 /**
  * We are installing.
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 define('WP_INSTALLING', true);
 
 /**
@@ -88,8 +91,8 @@ function setup_config_display_header( $body_classes = array() ) {
 } // end function setup_config_display_header();
 
 $language = '';
-if ( ! empty( $_REQUEST['language'] ) ) {
-	$language = preg_replace( '/[^a-zA-Z_]/', '', $_REQUEST['language'] );
+if ( !Request::isEmptyLanguage() ) {
+	$language = preg_replace( '/[^a-zA-Z_]/', '', Request::getLanguage() );
 } elseif ( isset( $GLOBALS['wp_local_package'] ) ) {
 	$language = $GLOBALS['wp_local_package'];
 }
@@ -117,7 +120,7 @@ switch($step) {
 
 		setup_config_display_header();
 		$step_1 = 'setup-config.php?step=1';
-		if ( isset( $_REQUEST['noapi'] ) ) {
+		if ( Request::isSetNoAPI() ) {
 			$step_1 .= '&amp;noapi';
 		}
 		if ( ! empty( $loaded_language ) ) {
@@ -198,7 +201,7 @@ switch($step) {
 
 	$step_1 = 'setup-config.php?step=1';
 	$install = 'install.php';
-	if ( isset( $_REQUEST['noapi'] ) ) {
+	if ( Request::isSetNoAPI() ) {
 		$step_1 .= '&amp;noapi';
 	}
 

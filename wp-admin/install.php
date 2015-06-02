@@ -30,6 +30,9 @@ if ( false ) {
  * @since 1.5.1
  * @var bool
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 define( 'WP_INSTALLING', true );
 
 /** Load WordPress Bootstrap */
@@ -148,7 +151,7 @@ function display_setup_form( $error = null ) {
 		</tr>
 	</table>
 	<p class="step"><input type="submit" name="Submit" value="<?php esc_attr_e( 'Install WordPress' ); ?>" class="button button-large" /></p>
-	<input type="hidden" name="language" value="<?php echo isset( $_REQUEST['language'] ) ? esc_attr( $_REQUEST['language'] ) : ''; ?>" />
+        <input type="hidden" name="language" value="<?php echo Request::isSetLanguage() ? esc_attr( Request::getLanguage() ) : ''; ?>" />
 </form>
 <?php
 } // end display_setup_form()
@@ -184,8 +187,8 @@ if ( ! is_string( $wpdb->base_prefix ) || '' === $wpdb->base_prefix ) {
 }
 
 $language = '';
-if ( ! empty( $_REQUEST['language'] ) ) {
-	$language = preg_replace( '/[^a-zA-Z_]/', '', $_REQUEST['language'] );
+if ( !Request::isEmptyLanguage() ) {
+	$language = preg_replace( '/[^a-zA-Z_]/', '', Request::getLanguage() );
 } elseif ( isset( $GLOBALS['wp_local_package'] ) ) {
 	$language = $GLOBALS['wp_local_package'];
 }

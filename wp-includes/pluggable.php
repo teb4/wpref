@@ -5,6 +5,8 @@
  *
  * @package WordPress
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 if ( !function_exists('wp_set_current_user') ) :
 /**
@@ -1083,7 +1085,7 @@ function check_admin_referer( $action = -1, $query_arg = '_wpnonce' ) {
 
 	$adminurl = strtolower(admin_url());
 	$referer = strtolower(wp_get_referer());
-	$result = isset($_REQUEST[$query_arg]) ? wp_verify_nonce($_REQUEST[$query_arg], $action) : false;
+        $result = Request::isSetKey($query_arg) ? wp_verify_nonce(Request::getKey($query_arg), $action) : false;
 	if ( !$result && !(-1 == $action && strpos($referer, $adminurl) === 0) ) {
 		wp_nonce_ays($action);
 		die();
@@ -1121,12 +1123,12 @@ if ( !function_exists('check_ajax_referer') ) :
 function check_ajax_referer( $action = -1, $query_arg = false, $die = true ) {
 	$nonce = '';
 
-	if ( $query_arg && isset( $_REQUEST[ $query_arg ] ) )
-		$nonce = $_REQUEST[ $query_arg ];
-	elseif ( isset( $_REQUEST['_ajax_nonce'] ) )
-		$nonce = $_REQUEST['_ajax_nonce'];
-	elseif ( isset( $_REQUEST['_wpnonce'] ) )
-		$nonce = $_REQUEST['_wpnonce'];
+	if ( $query_arg && Request::isSetKey( $query_arg ) )
+		$nonce = Request::getKey( $query_arg );
+	elseif (Request::isSet_Ajax_nonce() )
+		$nonce = Request::get_Ajax_nonce();
+	elseif (Request::isSet_WpNonce() )
+		$nonce = Request::get_WpNonce();
 
 	$result = wp_verify_nonce( $nonce, $action );
 

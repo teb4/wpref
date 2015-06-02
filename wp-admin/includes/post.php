@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /**
  * Rename $_POST data from form names to DB post columns.
@@ -578,16 +580,16 @@ function bulk_edit_posts( $post_data = null ) {
  */
 function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) {
 	$post_title = '';
-	if ( !empty( $_REQUEST['post_title'] ) )
-		$post_title = esc_html( wp_unslash( $_REQUEST['post_title'] ));
+	if ( !Request::isEmptyPostTitle() )
+		$post_title = esc_html( wp_unslash(Request::getPostTitle() ));
 
 	$post_content = '';
-	if ( !empty( $_REQUEST['content'] ) )
-		$post_content = esc_html( wp_unslash( $_REQUEST['content'] ));
+	if ( !Request::isEmptyContent() )
+		$post_content = esc_html( wp_unslash( Request::getContent() ));
 
 	$post_excerpt = '';
-	if ( !empty( $_REQUEST['excerpt'] ) )
-		$post_excerpt = esc_html( wp_unslash( $_REQUEST['excerpt'] ));
+	if ( !Request::isEmptyExcerpt() )
+		$post_excerpt = esc_html( wp_unslash(Request::getExcerpt() ));
 
 	if ( $create_in_db ) {
 		$post_id = wp_insert_post( array( 'post_title' => __( 'Auto Draft' ), 'post_type' => $post_type, 'post_status' => 'auto-draft' ) );

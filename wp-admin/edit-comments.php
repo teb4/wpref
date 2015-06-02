@@ -22,14 +22,14 @@ $doaction = $wp_list_table->current_action();
 if ( $doaction ) {
 	check_admin_referer( 'bulk-comments' );
 
-	if ( 'delete_all' == $doaction && !empty( $_REQUEST['pagegen_timestamp'] ) ) {
-		$comment_status = wp_unslash( $_REQUEST['comment_status'] );
-		$delete_time = wp_unslash( $_REQUEST['pagegen_timestamp'] );
+	if ( 'delete_all' == $doaction && !Request::isEmptyPagegenTimestamp() ) {
+		$comment_status = wp_unslash( Request::getCommentStatus() );
+		$delete_time = wp_unslash( Request::getPagegenTimestamp() );
 		$comment_ids = $wpdb->get_col( $wpdb->prepare( "SELECT comment_ID FROM $wpdb->comments WHERE comment_approved = %s AND %s > comment_date_gmt", $comment_status, $delete_time ) );
 		$doaction = 'delete';
-	} elseif ( isset( $_REQUEST['delete_comments'] ) ) {
-		$comment_ids = $_REQUEST['delete_comments'];
-		$doaction = ( Request::getAction() != -1 ) ? Request::getAction() : $_REQUEST['action2'];
+	} elseif (Request::isSetDeleteComments() ) {
+		$comment_ids = Request::getDeleteComments();
+		$doaction = ( Request::getAction() != -1 ) ? Request::getAction() : Request::getAction2();
 	} elseif ( Request::isSetIds() ) {
 		$comment_ids = array_map( 'absint', explode( ',', Request::getIds() ) );
 	} elseif ( wp_get_referer() ) {
@@ -159,8 +159,8 @@ if ( Request::isSetS() && Request::getS() )
 </h2>
 
 <?php
-if ( isset( $_REQUEST['error'] ) ) {
-	$error = (int) $_REQUEST['error'];
+if ( Request::isSetError() ) {
+	$error = (int) Request::getError();
 	$error_msg = '';
 	switch ( $error ) {
 		case 1 :
@@ -174,14 +174,14 @@ if ( isset( $_REQUEST['error'] ) ) {
 		echo '<div id="moderated" class="error"><p>' . $error_msg . '</p></div>';
 }
 
-if ( isset($_REQUEST['approved']) || isset($_REQUEST['deleted']) || isset($_REQUEST['trashed']) || isset($_REQUEST['untrashed']) || isset($_REQUEST['spammed']) || isset($_REQUEST['unspammed']) || isset($_REQUEST['same']) ) {
-	$approved  = isset( $_REQUEST['approved']  ) ? (int) $_REQUEST['approved']  : 0;
-	$deleted   = isset( $_REQUEST['deleted']   ) ? (int) $_REQUEST['deleted']   : 0;
-	$trashed   = isset( $_REQUEST['trashed']   ) ? (int) $_REQUEST['trashed']   : 0;
-	$untrashed = isset( $_REQUEST['untrashed'] ) ? (int) $_REQUEST['untrashed'] : 0;
-	$spammed   = isset( $_REQUEST['spammed']   ) ? (int) $_REQUEST['spammed']   : 0;
-	$unspammed = isset( $_REQUEST['unspammed'] ) ? (int) $_REQUEST['unspammed'] : 0;
-	$same      = isset( $_REQUEST['same'] )      ? (int) $_REQUEST['same']      : 0;
+if ( Request::isSetApproved() || Request::isSetDeleted() || Request::isSetTrashed() || Request::isSetUntrashed() || Request::isSetSpammed() || Request::isSetUnspammed() || Request::isSetSame() ) {
+	$approved  = Request::isSetApproved() ? (int) Request::getApproved()  : 0;
+	$deleted   = Request::isSetDeleted() ? (int) Request::getDeleted()   : 0;
+	$trashed   = Request::isSetTrashed() ? (int) Request::getTrashed()   : 0;
+	$untrashed = Request::isSetUntrashed() ? (int) Request::getUntrashed() : 0;
+	$spammed   = Request::isSetSpammed() ? (int) Request::getSpammed()   : 0;
+	$unspammed = Request::isSetUnspammed() ? (int) Request::getUnspammed() : 0;
+	$same      = Request::isSetSame()      ? (int) Request::getSame()      : 0;
 
 	if ( $approved > 0 || $deleted > 0 || $trashed > 0 || $untrashed > 0 || $spammed > 0 || $unspammed > 0 || $same > 0 ) {
 		if ( $approved > 0 )
@@ -241,8 +241,8 @@ if ( isset($_REQUEST['approved']) || isset($_REQUEST['deleted']) || isset($_REQU
 <input type="hidden" name="_per_page" value="<?php echo esc_attr( $wp_list_table->get_pagination_arg('per_page') ); ?>" />
 <input type="hidden" name="_page" value="<?php echo esc_attr( $wp_list_table->get_pagination_arg('page') ); ?>" />
 
-<?php if ( isset($_REQUEST['paged']) ) { ?>
-	<input type="hidden" name="paged" value="<?php echo esc_attr( absint( $_REQUEST['paged'] ) ); ?>" />
+<?php if ( Request::isSetPaged() ) { ?>
+<input type="hidden" name="paged" value="<?php echo esc_attr( absint( Request::getPaged() ) ); ?>" />
 <?php } ?>
 
 <?php $wp_list_table->display(); ?>

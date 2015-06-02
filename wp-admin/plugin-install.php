@@ -5,6 +5,9 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 // TODO route this pages via a specific iframe handler instead of the do_action below
 if ( !defined( 'IFRAME_REQUEST' ) && isset( $_GET['tab'] ) && ( 'plugin-information' == $_GET['tab'] ) )
 	define( 'IFRAME_REQUEST', true );
@@ -25,11 +28,11 @@ if ( is_multisite() && ! is_network_admin() ) {
 $wp_list_table = _get_list_table('WP_Plugin_Install_List_Table');
 $pagenum = $wp_list_table->get_pagenum();
 
-if ( ! empty( $_REQUEST['_wp_http_referer'] ) ) {
+if ( ! Request::isEmpty_Wp_http_referer() ) {
 	$location = remove_query_arg( '_wp_http_referer', wp_unslash( $_SERVER['REQUEST_URI'] ) );
 
-	if ( ! empty( $_REQUEST['paged'] ) ) {
-		$location = add_query_arg( 'paged', (int) $_REQUEST['paged'], $location );
+	if ( !Request::isEmptyPaged() ) {
+		$location = add_query_arg( 'paged', (int) Request::getPaged(), $location );
 	}
 
 	wp_redirect( $location );

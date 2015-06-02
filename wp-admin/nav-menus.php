@@ -37,7 +37,7 @@ $messages = array();
 $nav_menu_selected_title = '';
 
 // The menu id of the current menu being edited
-$nav_menu_selected_id = isset( $_REQUEST['menu'] ) ? (int) $_REQUEST['menu'] : 0;
+$nav_menu_selected_id = Request::isSetMenu() ? (int) Request::getMenu() : 0;
 
 // Get existing menu locations assignments
 $locations = get_registered_nav_menus();
@@ -50,18 +50,18 @@ $action = Request::isSetAction() ? Request::getAction() : 'edit';
 switch ( $action ) {
 	case 'add-menu-item':
 		check_admin_referer( 'add-menu_item', 'menu-settings-column-nonce' );
-		if ( isset( $_REQUEST['nav-menu-locations'] ) )
-			set_theme_mod( 'nav_menu_locations', array_map( 'absint', $_REQUEST['menu-locations'] ) );
-		elseif ( isset( $_REQUEST['menu-item'] ) )
-			wp_save_nav_menu_items( $nav_menu_selected_id, $_REQUEST['menu-item'] );
+		if ( Request::isSetNavMenuLocations() )
+			set_theme_mod( 'nav_menu_locations', array_map( 'absint', Request::getMenuLocations() ) );
+		elseif (Request::isSetMenuItem() )
+			wp_save_nav_menu_items( $nav_menu_selected_id, Request::getMenuItem() );
 		break;
 	case 'move-down-menu-item' :
 
 		// Moving down a menu item is the same as moving up the next in order.
 		check_admin_referer( 'move-menu_item' );
-		$menu_item_id = isset( $_REQUEST['menu-item'] ) ? (int) $_REQUEST['menu-item'] : 0;
+		$menu_item_id = Request::isSetMenuItem() ? (int) Request::getMenuItem() : 0;
 		if ( is_nav_menu_item( $menu_item_id ) ) {
-			$menus = isset( $_REQUEST['menu'] ) ? array( (int) $_REQUEST['menu'] ) : wp_get_object_terms( $menu_item_id, 'nav_menu', array( 'fields' => 'ids' ) );
+			$menus = Request::isSetMenu() ? array( (int) Request::getMenu() ) : wp_get_object_terms( $menu_item_id, 'nav_menu', array( 'fields' => 'ids' ) );
 			if ( ! is_wp_error( $menus ) && ! empty( $menus[0] ) ) {
 				$menu_id = (int) $menus[0];
 				$ordered_menu_items = wp_get_nav_menu_items( $menu_id );
@@ -132,9 +132,9 @@ switch ( $action ) {
 		break;
 	case 'move-up-menu-item' :
 		check_admin_referer( 'move-menu_item' );
-		$menu_item_id = isset( $_REQUEST['menu-item'] ) ? (int) $_REQUEST['menu-item'] : 0;
+		$menu_item_id = Request::isSetMenuItem() ? (int) Request::getMenuItem() : 0;
 		if ( is_nav_menu_item( $menu_item_id ) ) {
-			$menus = isset( $_REQUEST['menu'] ) ? array( (int) $_REQUEST['menu'] ) : wp_get_object_terms( $menu_item_id, 'nav_menu', array( 'fields' => 'ids' ) );
+			$menus = Request::isSetMenu() ? array( (int) Request::getMenu() ) : wp_get_object_terms( $menu_item_id, 'nav_menu', array( 'fields' => 'ids' ) );
 			if ( ! is_wp_error( $menus ) && ! empty( $menus[0] ) ) {
 				$menu_id = (int) $menus[0];
 				$ordered_menu_items = wp_get_nav_menu_items( $menu_id );
@@ -229,7 +229,7 @@ switch ( $action ) {
 		break;
 
 	case 'delete-menu-item':
-		$menu_item_id = (int) $_REQUEST['menu-item'];
+		$menu_item_id = (int) Request::getMenuItem();
 
 		check_admin_referer( 'delete-menu_item_' . $menu_item_id );
 
@@ -244,7 +244,7 @@ switch ( $action ) {
 		} else {
 			// Reset the selected menu.
 			$nav_menu_selected_id = 0;
-			unset( $_REQUEST['menu'] );
+			Request::unsetMenu();
 		}
 
 		if ( ! isset( $deletion ) )
@@ -258,7 +258,7 @@ switch ( $action ) {
 
 	case 'delete_menus':
 		check_admin_referer( 'nav_menus_bulk_actions' );
-		foreach ( $_REQUEST['delete_menus'] as $menu_id_to_delete ) {
+		foreach ( Request::getDeleteMenus() as $menu_id_to_delete ) {
 			if ( ! is_nav_menu( $menu_id_to_delete ) )
 				continue;
 
@@ -304,9 +304,9 @@ switch ( $action ) {
 					$_menu_object = wp_get_nav_menu_object( $_nav_menu_selected_id );
 					$nav_menu_selected_id = $_nav_menu_selected_id;
 					$nav_menu_selected_title = $_menu_object->name;
-					if ( isset( $_REQUEST['menu-item'] ) )
-						wp_save_nav_menu_items( $nav_menu_selected_id, absint( $_REQUEST['menu-item'] ) );
-					if ( isset( $_REQUEST['zero-menu-state'] ) ) {
+					if ( Request::isSetMenuItem() )
+						wp_save_nav_menu_items( $nav_menu_selected_id, absint(Request::getMenuItem() ) );
+					if ( Request::isSetZeroMenuState() ) {
 						// If there are menu items, add them
 						wp_nav_menu_update_menu_items( $nav_menu_selected_id, $nav_menu_selected_title );
 						// Auto-save nav_menu_locations
@@ -317,11 +317,11 @@ switch ( $action ) {
 						}
 						set_theme_mod( 'nav_menu_locations', $locations );
 					}
-					if ( isset( $_REQUEST['use-location'] ) ) {
+					if ( Request::isSetUseLocation() ) {
 						$locations = get_registered_nav_menus();
 						$menu_locations = get_nav_menu_locations();
-						if ( isset( $locations[ $_REQUEST['use-location'] ] ) )
-							$menu_locations[ $_REQUEST['use-location'] ] = $nav_menu_selected_id;
+						if ( isset( $locations[ Request::getUseLocation() ] ) )
+							$menu_locations[ Request::getUseLocation() ] = $nav_menu_selected_id;
 						set_theme_mod( 'nav_menu_locations', $menu_locations );
 					}
 

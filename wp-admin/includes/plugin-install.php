@@ -343,12 +343,12 @@ function install_plugin_install_status($api, $loop = false) {
 function install_plugin_information() {
 	global $tab;
 
-	if ( empty( $_REQUEST['plugin'] ) ) {
+	if ( Request::isEmptyPlugin() ) {
 		return;
 	}
 
 	$api = plugins_api( 'plugin_information', array(
-		'slug' => wp_unslash( $_REQUEST['plugin'] ),
+		'slug' => wp_unslash( Request::getPlugin() ),
 		'is_ssl' => is_ssl(),
 		'fields' => array(
 			'banners' => true,
@@ -395,7 +395,7 @@ function install_plugin_information() {
 
 	$_tab = esc_attr( $tab );
 
-	$section = isset( $_REQUEST['section'] ) ? wp_unslash( $_REQUEST['section'] ) : 'description'; // Default to the Description tab, Do not translate, API returns English.
+	$section = Request::isSetSection() ? wp_unslash( Request::getSection() ) : 'description'; // Default to the Description tab, Do not translate, API returns English.
 	if ( empty( $section ) || ! isset( $api->sections[ $section ] ) ) {
 		$section_titles = array_keys( (array) $api->sections );
 		$section = reset( $section_titles );

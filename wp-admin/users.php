@@ -65,10 +65,10 @@ get_current_screen()->set_help_sidebar(
     '<p>' . __('<a href="https://wordpress.org/support/" target="_blank">Support Forums</a>') . '</p>'
 );
 
-if ( empty($_REQUEST) ) {
+if ( Request::isEmptyArray() ) {
 	$referer = '<input type="hidden" name="wp_http_referer" value="'. esc_attr( wp_unslash( $_SERVER['REQUEST_URI'] ) ) . '" />';
-} elseif ( isset($_REQUEST['wp_http_referer']) ) {
-	$redirect = remove_query_arg(array('wp_http_referer', 'updated', 'delete_count'), wp_unslash( $_REQUEST['wp_http_referer'] ) );
+} elseif (Request::isSetWp_http_referer() ) {
+	$redirect = remove_query_arg(array('wp_http_referer', 'updated', 'delete_count'), wp_unslash( Request::getWp_http_referer() ) );
 	$referer = '<input type="hidden" name="wp_http_referer" value="' . esc_attr($redirect) . '" />';
 } else {
 	$redirect = 'users.php';
@@ -111,7 +111,7 @@ case 'promote':
 	}
 
 	$editable_roles = get_editable_roles();
-	if ( empty( $editable_roles[$_REQUEST['new_role']] ) )
+	if ( empty( $editable_roles[Request::getNewRole()] ) )
 		wp_die(__('You can&#8217;t give users that role.'));
 
 	$userids = \wp\Request::getUsers();
@@ -122,7 +122,7 @@ case 'promote':
 		if ( ! current_user_can('promote_user', $id) )
 			wp_die(__('You can&#8217;t edit that user.'));
 		// The new role of the current user must also have the promote_users cap or be a multisite super admin
-		if ( $id == $current_user->ID && ! $wp_roles->role_objects[ $_REQUEST['new_role'] ]->has_cap('promote_users')
+		if ( $id == $current_user->ID && ! $wp_roles->role_objects[Request::getNewRole() ]->has_cap('promote_users')
 			&& ! ( is_multisite() && is_super_admin() ) ) {
 				$update = 'err_admin_role';
 				continue;
@@ -133,7 +133,7 @@ case 'promote':
 			wp_die( __( 'Cheatin&#8217; uh?' ), 403 );
 
 		$user = get_userdata( $id );
-		$user->set_role($_REQUEST['new_role']);
+		$user->set_role(Request::getNewRole());
 	}
 
 	wp_redirect(add_query_arg('update', $update, $redirect));
@@ -150,9 +150,9 @@ case 'dodelete':
 		exit();
 	}
 
-	$userids = array_map( 'intval', (array) \wp\Request::getUsers() );
+	$userids = array_map( 'intval', (array) Request::getUsers() );
 
-	if ( empty( $_REQUEST['delete_option'] ) ) {
+	if ( Request::isEmptyDeleteOption() ) {
 		$url = self_admin_url( 'users.php?action=delete&users[]=' . implode( '&users[]=', $userids ) . '&error=true' );
 		$url = str_replace( '&amp;', '&', wp_nonce_url( $url, 'bulk-users' ) );
 		wp_redirect( $url );
@@ -173,12 +173,12 @@ case 'dodelete':
 			$update = 'err_admin_del';
 			continue;
 		}
-		switch ( $_REQUEST['delete_option'] ) {
+		switch (Request::getDeleteOption() ) {
 		case 'delete':
 			wp_delete_user( $id );
 			break;
 		case 'reassign':
-			wp_delete_user( $id, $_REQUEST['reassign_user'] );
+			wp_delete_user( $id, Request::getReassignUser() );
 			break;
 		}
 		++$delete_count;
@@ -194,7 +194,7 @@ case 'delete':
 
 	check_admin_referer('bulk-users');
 
-	if ( \wp\Request::isEmptyUsers() && empty($_REQUEST['user']) ) {
+	if ( \wp\Request::isEmptyUsers() && Request::isEmptyUser() ) {
 		wp_redirect($redirect);
 		exit();
 	}
@@ -203,7 +203,7 @@ case 'delete':
 		$errors = new WP_Error( 'edit_users', __( 'You can&#8217;t delete users.' ) );
 
 	if ( \wp\Request::isEmptyUsers() )
-		$userids = array( intval( $_REQUEST['user'] ) );
+		$userids = array( intval( Request::getUser() ) );
 	else
 		$userids = array_map( 'intval', (array) \wp\Request::getUsers() );
 
@@ -217,7 +217,7 @@ case 'delete':
 
 <div class="wrap">
 <h2><?php _e('Delete Users'); ?></h2>
-<?php if ( isset( $_REQUEST['error'] ) ) : ?>
+<?php if ( Request::isSetError() ) : ?>
 	<div class="error">
 		<p><strong><?php _e( 'ERROR:' ); ?></strong> <?php _e( 'Please select an option.' ); ?></p>
 	</div>
@@ -318,7 +318,7 @@ case 'remove':
 	if ( ! is_multisite() )
 		wp_die( __( 'You can&#8217;t remove users.' ) );
 
-	if ( \wp\Request::isEmptyUsers() && empty($_REQUEST['user']) ) {
+	if ( \wp\Request::isEmptyUsers() && Request::isEmptyUser() ) {
 		wp_redirect($redirect);
 		exit();
 	}
@@ -327,7 +327,7 @@ case 'remove':
 		$error = new WP_Error('edit_users', __('You can&#8217;t remove users.'));
 
 	if ( \wp\Request::isEmptyUsers() )
-		$userids = array(intval($_REQUEST['user']));
+		$userids = array(intval(Request::getUser()));
 	else
 		$userids = \wp\Request::getUsers();
 

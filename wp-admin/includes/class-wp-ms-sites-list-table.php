@@ -56,10 +56,14 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 		 * the latest blogs with no paging in order to avoid expensive count queries.
 		 */
 		if ( !$s && wp_is_large_network() ) {
-			if ( !isset($_REQUEST['orderby']) )
-				$_GET['orderby'] = $_REQUEST['orderby'] = '';
-			if ( !isset($_REQUEST['order']) )
-				$_GET['order'] = $_REQUEST['order'] = 'DESC';
+			if ( !Request::isSetOrderBy() ){
+                            Request::setOrderBy( '' );
+                                $_GET['orderby'] = '';
+                        }
+			if ( !Request::isSetOrder() ){
+                            Request::setOrder( 'DESC' );
+                            $_GET['order'] =  'DESC';
+                        }
 		}
 
 		$query = "SELECT * FROM {$wpdb->blogs} WHERE site_id = '{$wpdb->siteid}' ";
@@ -98,7 +102,7 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 			}
 		}
 
-		$order_by = isset( $_REQUEST['orderby'] ) ? $_REQUEST['orderby'] : '';
+		$order_by = Request::isSetOrderBy() ? Request::getOrderBy() : '';
 		if ( $order_by == 'registered' ) {
 			$query .= ' ORDER BY registered ';
 		} elseif ( $order_by == 'lastupdated' ) {
@@ -115,7 +119,7 @@ class WP_MS_Sites_List_Table extends WP_List_Table {
 		}
 
 		if ( isset( $order_by ) ) {
-			$order = ( isset( $_REQUEST['order'] ) && 'DESC' == strtoupper( $_REQUEST['order'] ) ) ? "DESC" : "ASC";
+			$order = ( Request::isSetOrder() && 'DESC' == strtoupper( Request::getOrder() ) ) ? "DESC" : "ASC";
 			$query .= $order;
 		}
 

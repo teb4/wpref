@@ -22,7 +22,7 @@ if ( is_multisite() ) {
 if ( is_multisite() ) {
 	function admin_created_user_email( $text ) {
 		$roles = get_editable_roles();
-		$role = $roles[ $_REQUEST['role'] ];
+		$role = $roles[ Request::getRole() ];
 		/* translators: 1: Site name, 2: site URL, 3: role */
 		return sprintf( __( 'Hi,
 You\'ve been invited to join \'%1$s\' at
@@ -40,7 +40,7 @@ if ( Request::isSetAction() && 'adduser' == Request::getAction() ) {
 	check_admin_referer( 'add-user', '_wpnonce_add-user' );
 
 	$user_details = null;
-	$user_email = wp_unslash( $_REQUEST['email'] );
+	$user_email = wp_unslash( Request::getEmail() );
 	if ( false !== strpos( $user_email, '@' ) ) {
 		$user_details = get_user_by( 'email', $user_email );
 	} else {
@@ -69,14 +69,14 @@ if ( Request::isSetAction() && 'adduser' == Request::getAction() ) {
 		$redirect = add_query_arg( array('update' => 'addexisting'), 'user-new.php' );
 	} else {
 		if ( isset( $_POST[ 'noconfirmation' ] ) && is_super_admin() ) {
-			add_existing_user_to_blog( array( 'user_id' => $user_id, 'role' => $_REQUEST[ 'role' ] ) );
+			add_existing_user_to_blog( array( 'user_id' => $user_id, 'role' => Request::getRole() ) );
 			$redirect = add_query_arg( array('update' => 'addnoconfirmation'), 'user-new.php' );
 		} else {
 			$newuser_key = substr( md5( $user_id ), 0, 5 );
-			add_option( 'new_user_' . $newuser_key, array( 'user_id' => $user_id, 'email' => $user_details->user_email, 'role' => $_REQUEST[ 'role' ] ) );
+			add_option( 'new_user_' . $newuser_key, array( 'user_id' => $user_id, 'email' => $user_details->user_email, 'role' => Request::getRole() ) );
 
 			$roles = get_editable_roles();
-			$role = $roles[ $_REQUEST['role'] ];
+			$role = $roles[ Request::getRole() ];
 			/* translators: 1: Site name, 2: site URL, 3: role, 4: activation URL */
 			$message = __( 'Hi,
 
@@ -112,8 +112,8 @@ Please click the following link to confirm the invite:
 		}
 	} else {
 		// Adding a new user to this site
-		$new_user_email = wp_unslash( $_REQUEST['email'] );
-		$user_details = wpmu_validate_user_signup( $_REQUEST['user_login'], $new_user_email );
+		$new_user_email = wp_unslash( Request::getEmail() );
+		$user_details = wpmu_validate_user_signup( Request::getUserLogin(), $new_user_email );
 		if ( is_wp_error( $user_details[ 'errors' ] ) && !empty( $user_details[ 'errors' ]->errors ) ) {
 			$add_user_errors = $user_details[ 'errors' ];
 		} else {
@@ -124,12 +124,12 @@ Please click the following link to confirm the invite:
 			 *
 			 * @param string $user_login The sanitized username.
 			 */
-			$new_user_login = apply_filters( 'pre_user_login', sanitize_user( wp_unslash( $_REQUEST['user_login'] ), true ) );
+			$new_user_login = apply_filters( 'pre_user_login', sanitize_user( wp_unslash( Request::getUserLogin() ), true ) );
 			if ( isset( $_POST[ 'noconfirmation' ] ) && is_super_admin() ) {
 				add_filter( 'wpmu_signup_user_notification', '__return_false' ); // Disable confirmation email
 				add_filter( 'wpmu_welcome_user_notification', '__return_false' ); // Disable welcome email
 			}
-			wpmu_signup_user( $new_user_login, $new_user_email, array( 'add_to_blog' => $wpdb->blogid, 'new_role' => $_REQUEST['role'] ) );
+			wpmu_signup_user( $new_user_login, $new_user_email, array( 'add_to_blog' => $wpdb->blogid, 'new_role' => Request::getRole() ) );
 			if ( isset( $_POST[ 'noconfirmation' ] ) && is_super_admin() ) {
 				$key = $wpdb->get_var( $wpdb->prepare( "SELECT activation_key FROM {$wpdb->signups} WHERE user_login = %s AND user_email = %s", $new_user_login, $new_user_email ) );
 				wpmu_activate_signup( $key );

@@ -41,7 +41,7 @@ class WP_Comments_List_Table extends WP_List_Table {
 	public function __construct( $args = array() ) {
 		global $post_id;
 
-		$post_id = isset( $_REQUEST['p'] ) ? absint( $_REQUEST['p'] ) : 0;
+		$post_id = Request::isSetP() ? absint( Request::getP() ) : 0;
 
 		if ( get_option('show_avatars') )
 			add_filter( 'comment_author', 'floated_admin_avatar' );
@@ -61,27 +61,27 @@ class WP_Comments_List_Table extends WP_List_Table {
 	public function prepare_items() {
 		global $post_id, $comment_status, $search, $comment_type;
 
-		$comment_status = isset( $_REQUEST['comment_status'] ) ? $_REQUEST['comment_status'] : 'all';
+		$comment_status = Request::isSetCommentStatus() ? Request::getCommentStatus() : 'all';
 		if ( !in_array( $comment_status, array( 'all', 'moderated', 'approved', 'spam', 'trash' ) ) )
 			$comment_status = 'all';
 
-		$comment_type = !empty( $_REQUEST['comment_type'] ) ? $_REQUEST['comment_type'] : '';
+		$comment_type = !Request::isEmptyCommentType() ? Request::getCommentType() : '';
 
 		$search = ( Request::isSetS() ) ? Request::getS() : '';
 
 		$post_type = ( Request::isSetPostType() ) ? sanitize_key( Request::getPostType() ) : '';
 
-		$user_id = ( isset( $_REQUEST['user_id'] ) ) ? $_REQUEST['user_id'] : '';
+		$user_id = ( Request::isSetUserId() ) ? Request::getUserId() : '';
 
-		$orderby = ( isset( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : '';
-		$order = ( isset( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : '';
+		$orderby = ( Request::isSetOrderBy() ) ? Request::getOrderBy() : '';
+		$order = ( Request::isSetOrder() ) ? Request::getOrder() : '';
 
 		$comments_per_page = $this->get_per_page( $comment_status );
 
 		$doing_ajax = defined( 'DOING_AJAX' ) && DOING_AJAX;
 
-		if ( isset( $_REQUEST['number'] ) ) {
-			$number = (int) $_REQUEST['number'];
+		if ( Request::isSetNumber() ) {
+			$number = (int) Request::getNumber();
 		}
 		else {
 			$number = $comments_per_page + min( 8, $comments_per_page ); // Grab a few extra
@@ -89,14 +89,14 @@ class WP_Comments_List_Table extends WP_List_Table {
 
 		$page = $this->get_pagenum();
 
-		if ( isset( $_REQUEST['start'] ) ) {
-			$start = $_REQUEST['start'];
+		if ( Request::isSetStart() ) {
+			$start = Request::getStart();
 		} else {
 			$start = ( $page - 1 ) * $comments_per_page;
 		}
 
-		if ( $doing_ajax && isset( $_REQUEST['offset'] ) ) {
-			$start += $_REQUEST['offset'];
+		if ( $doing_ajax && Request::isSetOffset() ) {
+			$start += Request::getOffset();
 		}
 
 		$status_map = array(
@@ -291,7 +291,7 @@ class WP_Comments_List_Table extends WP_List_Table {
 	}
 
 	public function current_action() {
-		if ( isset( $_REQUEST['delete_all'] ) || isset( $_REQUEST['delete_all2'] ) )
+		if ( Request::isSetDeleteAll() || Request::isSetDeleteAll2() )
 			return 'delete_all';
 
 		return parent::current_action();

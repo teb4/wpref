@@ -104,7 +104,7 @@ if ( $action ) {
 
 			check_admin_referer( 'bulk-themes' );
 
-			$themes = isset( $_REQUEST['checked'] ) ? (array) $_REQUEST['checked'] : array();
+			$themes = Request::isSetChecked() ? (array) Request::getChecked() : array();
 
 			if ( empty( $themes ) ) {
 				wp_safe_redirect( add_query_arg( 'error', 'none', $referer ) );
@@ -145,7 +145,7 @@ if ( $action ) {
 
 			$parent_file = 'themes.php';
 
-			if ( ! isset( $_REQUEST['verify-delete'] ) ) {
+			if ( !Request::isSetVerifyDelete() ) {
 				wp_enqueue_script( 'jquery' );
 				require_once( ABSPATH . 'wp-admin/admin-header.php' );
 				$themes_to_delete = count( $themes );
@@ -217,12 +217,12 @@ if ( $action ) {
 				$delete_result = delete_theme( $theme, esc_url( add_query_arg( array(
 					'verify-delete' => 1,
 					'action' => 'delete-selected',
-					'checked' => $_REQUEST['checked'],
-					'_wpnonce' => $_REQUEST['_wpnonce']
+					'checked' => Request::getChecked(),
+					'_wpnonce' => Request::get_WpNonce()
 				), network_admin_url( 'themes.php' ) ) ) );
 			}
 
-			$paged = ( $_REQUEST['paged'] ) ? $_REQUEST['paged'] : 1;
+			$paged = ( Request::getPaged() ) ? Request::getPaged() : 1;
 			wp_redirect( add_query_arg( array(
 				'deleted' => count( $themes ),
 				'paged' => $paged,

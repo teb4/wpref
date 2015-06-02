@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /** Load WordPress Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -239,14 +241,14 @@ case 'spamcomment'      :
 case 'unspamcomment'    :
 case 'approvecomment'   :
 case 'unapprovecomment' :
-	$comment_id = absint( $_REQUEST['c'] );
+	$comment_id = absint( Request::getC() );
 
 	if ( in_array( $action, array( 'approvecomment', 'unapprovecomment' ) ) )
 		check_admin_referer( 'approve-comment_' . $comment_id );
 	else
 		check_admin_referer( 'delete-comment_' . $comment_id );
 
-	$noredir = isset($_REQUEST['noredir']);
+	$noredir = Request::isSetNoRedir();
 
 	if ( !$comment = get_comment($comment_id) )
 		comment_footer_die( __('Oops, no comment with this ID.') . sprintf(' <a href="%s">' . __('Go back') . '</a>.', 'edit-comments.php') );

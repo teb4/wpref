@@ -79,7 +79,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 				AND post_author = %d
 			", $post_type, get_current_user_id() ) );
 
-			if ( $this->user_posts_count && empty( $_REQUEST['post_status'] ) && empty( $_REQUEST['all_posts'] ) && empty( $_REQUEST['author'] ) && empty( $_REQUEST['show_sticky'] ) )
+			if ( $this->user_posts_count && Request::isEmptyPostStatus() && Request::isEmptyAllPosts() && Request::isEmptyAuthor() && Request::isEmptyShowSticky() )
 				$_GET['author'] = get_current_user_id();
 		}
 
@@ -131,7 +131,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 			$mode = get_user_setting ( 'posts_list_mode', 'list' );
 		}
 
-		$this->is_trash = isset( $_REQUEST['post_status'] ) && $_REQUEST['post_status'] == 'trash';
+		$this->is_trash = Request::isSetPostStatus() && Request::getPostStatus() == 'trash';
 
 		$this->set_pagination_args( array(
 			'total_items' => $total_items,
@@ -145,7 +145,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 	}
 
 	public function no_items() {
-		if ( isset( $_REQUEST['post_status'] ) && 'trash' == $_REQUEST['post_status'] )
+		if ( Request::isSetPostStatus() && 'trash' == Request::getPostStatus() )
 			echo get_post_type_object( $this->screen->post_type )->labels->not_found_in_trash;
 		else
 			echo get_post_type_object( $this->screen->post_type )->labels->not_found;
@@ -222,14 +222,14 @@ class WP_Posts_List_Table extends WP_List_Table {
 			if ( empty( $num_posts->$status_name ) )
 				continue;
 
-			if ( isset($_REQUEST['post_status']) && $status_name == $_REQUEST['post_status'] )
+			if ( Request::isSetPostStatus() && $status_name == Request::getPostStatus() )
 				$class = ' class="current"';
 
 			$status_links[$status_name] = "<a href='edit.php?post_status=$status_name&amp;post_type=$post_type'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
 		}
 
 		if ( ! empty( $this->sticky_posts_count ) ) {
-			$class = ! empty( $_REQUEST['show_sticky'] ) ? ' class="current"' : '';
+			$class = !Request::isEmptyShowSticky() ? ' class="current"' : '';
 
 			$sticky_link = array( 'sticky' => "<a href='edit.php?post_type=$post_type&amp;show_sticky=1'$class>" . sprintf( _nx( 'Sticky <span class="count">(%s)</span>', 'Sticky <span class="count">(%s)</span>', $this->sticky_posts_count, 'posts' ), number_format_i18n( $this->sticky_posts_count ) ) . '</a>' );
 
@@ -311,7 +311,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 	}
 
 	public function current_action() {
-		if ( isset( $_REQUEST['delete_all'] ) || isset( $_REQUEST['delete_all2'] ) )
+		if ( Request::isSetDeleteAll() || Request::isSetDeleteAll2() )
 			return 'delete_all';
 
 		return parent::current_action();
@@ -376,7 +376,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 			$posts_columns[ $column_key ] = get_taxonomy( $taxonomy )->labels->name;
 		}
 
-		$post_status = !empty( $_REQUEST['post_status'] ) ? $_REQUEST['post_status'] : 'all';
+		$post_status = !Request::isEmptyPostStatus() ? Request::getPostStatus() : 'all';
 		if ( post_type_supports( $post_type, 'comments' ) && !in_array( $post_status, array( 'pending', 'draft', 'future' ) ) )
 			$posts_columns['comments'] = '<span class="vers comment-grey-bubble" title="' . esc_attr__( 'Comments' ) . '"><span class="screen-reader-text">' . __( 'Comments' ) . '</span></span>';
 

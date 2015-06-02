@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Post_Revisions
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /**
  * Determines which fields of posts are to be saved in revisions.
@@ -537,12 +539,12 @@ function _wp_preview_terms_filter( $terms, $post_id, $taxonomy ) {
 	if ( ! $post = get_post() )
 		return $terms;
 
-	if ( empty( $_REQUEST['post_format'] ) || $post->ID != $post_id || 'post_format' != $taxonomy || 'revision' == $post->post_type )
+	if ( Request::isEmptyPostFormat() || $post->ID != $post_id || 'post_format' != $taxonomy || 'revision' == $post->post_type )
 		return $terms;
 
-	if ( 'standard' == $_REQUEST['post_format'] )
+	if ( 'standard' == Request::getPostFormat() )
 		$terms = array();
-	elseif ( $term = get_term_by( 'slug', 'post-format-' . sanitize_key( $_REQUEST['post_format'] ), 'post_format' ) )
+	elseif ( $term = get_term_by( 'slug', 'post-format-' . sanitize_key( Request::getPostFormat() ), 'post_format' ) )
 		$terms = array( $term ); // Can only have one post format
 
 	return $terms;

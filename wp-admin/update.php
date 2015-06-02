@@ -17,8 +17,8 @@ require_once( dirname( __FILE__ ) . '/admin.php' );
 include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
 if ( isset($_GET['action']) ) {
-	$plugin = isset($_REQUEST['plugin']) ? trim($_REQUEST['plugin']) : '';
-	$theme = isset($_REQUEST['theme']) ? urldecode($_REQUEST['theme']) : '';
+	$plugin = Request::isSetPlugin() ? trim(Request::getPlugin()) : '';
+	$theme = Request::isSetTheme() ? urldecode(Request::getTheme()) : '';
 	$action = Request::isSetAction() ? Request::getAction() : '';
 
 	if ( 'update-selected' == $action ) {

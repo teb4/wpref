@@ -1439,8 +1439,8 @@ function wp_get_referer() {
 	if ( ! function_exists( 'wp_validate_redirect' ) )
 		return false;
 	$ref = false;
-	if ( ! empty( $_REQUEST['_wp_http_referer'] ) )
-		$ref = wp_unslash( $_REQUEST['_wp_http_referer'] );
+	if ( ! Request::isEmpty_Wp_http_referer() )
+		$ref = wp_unslash(Request::get_Wp_http_referer() );
 	elseif ( ! empty( $_SERVER['HTTP_REFERER'] ) )
 		$ref = wp_unslash( $_SERVER['HTTP_REFERER'] );
 
@@ -1457,8 +1457,8 @@ function wp_get_referer() {
  * @return string|false False if no original referer or original referer if set.
  */
 function wp_get_original_referer() {
-	if ( ! empty( $_REQUEST['_wp_original_http_referer'] ) && function_exists( 'wp_validate_redirect' ) )
-		return wp_validate_redirect( wp_unslash( $_REQUEST['_wp_original_http_referer'] ), false );
+	if ( !Request::isEmpty_Wp_original_http_referer() && function_exists( 'wp_validate_redirect' ) )
+		return wp_validate_redirect( wp_unslash(Request::get_Wp_original_http_referer() ), false );
 	return false;
 }
 

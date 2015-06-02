@@ -7,6 +7,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -106,7 +108,7 @@ if ( ! $sendback ||
 switch($action) {
 case 'post-quickdraft-save':
 	// Check nonce and capabilities
-	$nonce = $_REQUEST['_wpnonce'];
+	$nonce = Request::get_WpNonce();
 	$error_msg = false;
 
 	// For output of the quickdraft dashboard widget
@@ -121,7 +123,7 @@ case 'post-quickdraft-save':
 	if ( $error_msg )
 		return wp_dashboard_quick_press( $error_msg );
 
-	$post = get_post( $_REQUEST['post_ID'] );
+	$post = get_post( Request::getPostID_s() );
 	check_admin_referer( 'add-' . $post->post_type );
 
 	$_POST['comment_status'] = get_option( 'default_comment_status' );

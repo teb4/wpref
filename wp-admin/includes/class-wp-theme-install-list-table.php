@@ -31,8 +31,8 @@ class WP_Theme_Install_List_Table extends WP_Themes_List_Table {
 			$search_terms = array_unique( array_filter( array_map( 'trim', explode( ',', $search_string ) ) ) );
 		}
 
-		if ( ! empty( $_REQUEST['features'] ) )
-			$this->features = $_REQUEST['features'];
+		if ( !Request::isEmptyFeatures() )
+			$this->features = Request::getFeatures();
 
 		$paged = $this->get_pagenum();
 

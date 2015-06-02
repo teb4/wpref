@@ -98,11 +98,11 @@ class WP_Terms_List_Table extends WP_List_Table {
 			'number' => $tags_per_page,
 		);
 
-		if ( !empty( $_REQUEST['orderby'] ) )
-			$args['orderby'] = trim( wp_unslash( $_REQUEST['orderby'] ) );
+		if ( !Request::isEmptyOrderBy() )
+			$args['orderby'] = trim( wp_unslash(Request::getOrderBy() ) );
 
-		if ( !empty( $_REQUEST['order'] ) )
-			$args['order'] = trim( wp_unslash( $_REQUEST['order'] ) );
+		if ( !Request::isEmptyOrder() )
+			$args['order'] = trim( wp_unslash( Request::getOrder() ) );
 
 		$this->callback_args = $args;
 
@@ -129,7 +129,7 @@ class WP_Terms_List_Table extends WP_List_Table {
 	}
 
 	public function current_action() {
-		if ( Request::isSetAction() && isset( $_REQUEST['delete_tags'] ) && ( 'delete' == Request::getAction() || 'delete' == $_REQUEST['action2'] ) )
+		if ( Request::isSetAction() && Request::isSetDeleteTags() && ( 'delete' == Request::getAction() || 'delete' == Request::getAction2() ) )
 			return 'bulk-delete';
 
 		return parent::current_action();

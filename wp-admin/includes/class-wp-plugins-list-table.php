@@ -31,8 +31,8 @@ class WP_Plugins_List_Table extends WP_List_Table {
 		) );
 
 		$status = 'all';
-		if ( isset( $_REQUEST['plugin_status'] ) && in_array( $_REQUEST['plugin_status'], array( 'active', 'inactive', 'recently_activated', 'upgrade', 'mustuse', 'dropins', 'search' ) ) )
-			$status = $_REQUEST['plugin_status'];
+		if ( Request::isSetPluginStatus() && in_array( Request::getPluginStatus(), array( 'active', 'inactive', 'recently_activated', 'upgrade', 'mustuse', 'dropins', 'search' ) ) )
+			$status = Request::getPluginStatus();
 
 		if ( Request::isSetS() )
 			$_SERVER['REQUEST_URI'] = add_query_arg('s', wp_unslash(Request::getS()) );

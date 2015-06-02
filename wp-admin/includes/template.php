@@ -1679,8 +1679,8 @@ function iframe_footer() {
 
 function _post_states($post) {
 	$post_states = array();
-	if ( isset( $_REQUEST['post_status'] ) )
-		$post_status = $_REQUEST['post_status'];
+	if ( Request::isSetPostStatus() )
+		$post_status = Request::getPostStatus();
 	else
 		$post_status = '';
 

@@ -460,7 +460,7 @@ do_action( 'login_init' );
 do_action( 'login_form_' . $action );
 
 $http_post = ('POST' == $_SERVER['REQUEST_METHOD']);
-$interim_login = isset($_REQUEST['interim-login']);
+$interim_login = Request::isSetInterimLogin();
 
 switch ($action) {
 
@@ -769,7 +769,7 @@ break;
 case 'login' :
 default:
 	$secure_cookie = '';
-	$customize_login = isset( $_REQUEST['customize-login'] );
+	$customize_login = Request::isSetCustomizeLogin();
 	if ( $customize_login )
 		wp_enqueue_script( 'customize-base' );
 
@@ -793,7 +793,7 @@ default:
 		$redirect_to = admin_url();
 	}
 
-	$reauth = empty($_REQUEST['reauth']) ? false : true;
+	$reauth = Request::isEmptyReAuth() ? false : true;
 
 	$user = wp_signon( '', $secure_cookie );
 

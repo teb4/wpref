@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Theme
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
 
 /**
  * Returns an array of WP_Theme objects based on the arguments.
@@ -1933,7 +1935,7 @@ function check_theme_switched() {
  * @since 3.4.0
  */
 function _wp_customize_include() {
-	if ( ! ( ( isset( $_REQUEST['wp_customize'] ) && 'on' == $_REQUEST['wp_customize'] )
+	if ( ! ( ( Request::isSetWpCustomize() && 'on' == Request::getWpCustomize() )
 		|| ( is_admin() && 'customize.php' == basename( $_SERVER['PHP_SELF'] ) )
 	) )
 		return;

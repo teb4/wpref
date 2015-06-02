@@ -7,6 +7,9 @@
  * @since 3.0.0
  * @uses Walker_Nav_Menu
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class Walker_Nav_Menu_Edit extends Walker_Nav_Menu {
 	/**
 	 * Starts the list before the elements are added.
@@ -616,7 +619,7 @@ function wp_nav_menu_item_post_type_meta_box( $object, $post_type ) {
 
 	// Paginate browsing for large numbers of post objects.
 	$per_page = 50;
-	$pagenum = isset( $_REQUEST[$post_type_name . '-tab'] ) && isset( $_REQUEST['paged'] ) ? absint( $_REQUEST['paged'] ) : 1;
+        $pagenum = Request::isSetKey( $post_type_name . '-tab' ) && Request::isSetPaged() ? absint( Request::getPaged() ) : 1;
 	$offset = 0 < $pagenum ? $per_page * ( $pagenum - 1 ) : 0;
 
 	$args = array(
@@ -667,11 +670,11 @@ function wp_nav_menu_item_post_type_meta_box( $object, $post_type ) {
 	$walker = new Walker_Nav_Menu_Checklist( $db_fields );
 
 	$current_tab = 'most-recent';
-	if ( isset( $_REQUEST[$post_type_name . '-tab'] ) && in_array( $_REQUEST[$post_type_name . '-tab'], array('all', 'search') ) ) {
-		$current_tab = $_REQUEST[$post_type_name . '-tab'];
+        if ( Request::isSetKey( $post_type_name . '-tab' ) && in_array( Request::getKey( $post_type_name . '-tab' ), array('all', 'search') ) ) {
+		$current_tab = Request::getKey( $post_type_name . '-tab' );
 	}
 
-	if ( ! empty( $_REQUEST['quick-search-posttype-' . $post_type_name] ) ) {
+	if ( !Request::isEmptyQuickSearchPosttype( $post_type_name ) ) {
 		$current_tab = 'search';
 	}
 
@@ -721,8 +724,8 @@ function wp_nav_menu_item_post_type_meta_box( $object, $post_type ) {
 			echo ( 'search' == $current_tab ? 'tabs-panel-active' : 'tabs-panel-inactive' );
 		?>" id="tabs-panel-posttype-<?php echo $post_type_name; ?>-search">
 			<?php
-			if ( isset( $_REQUEST['quick-search-posttype-' . $post_type_name] ) ) {
-				$searched = esc_attr( $_REQUEST['quick-search-posttype-' . $post_type_name] );
+			if ( Request::isSetQuickSearchPosttype( $post_type_name ) ) {
+				$searched = esc_attr( Request::getQuickSearchPosttype( $post_type_name ) );
 				$search_results = get_posts( array( 's' => $searched, 'post_type' => $post_type_name, 'fields' => 'all', 'order' => 'DESC', ) );
 			} else {
 				$searched = '';
@@ -806,7 +809,7 @@ function wp_nav_menu_item_post_type_meta_box( $object, $post_type ) {
 				$posts = apply_filters( "nav_menu_items_{$post_type_name}", $posts, $args, $post_type );
 				$checkbox_items = walk_nav_menu_tree( array_map('wp_setup_nav_menu_item', $posts), 0, (object) $args );
 
-				if ( 'all' == $current_tab && ! empty( $_REQUEST['selectall'] ) ) {
+				if ( 'all' == $current_tab && !Request::isEmptySelectAll() ) {
 					$checkbox_items = preg_replace('/(type=(.)checkbox(\2))/', '$1 checked=$2checked$2', $checkbox_items);
 
 				}
@@ -858,7 +861,7 @@ function wp_nav_menu_item_taxonomy_meta_box( $object, $taxonomy ) {
 
 	// Paginate browsing for large numbers of objects.
 	$per_page = 50;
-	$pagenum = isset( $_REQUEST[$taxonomy_name . '-tab'] ) && isset( $_REQUEST['paged'] ) ? absint( $_REQUEST['paged'] ) : 1;
+        $pagenum = Request::isSetKey( $taxonomy_name . '-tab' ) && Request::isSetPaged() ? absint( Request::getPaged() ) : 1;
 	$offset = 0 < $pagenum ? $per_page * ( $pagenum - 1 ) : 0;
 
 	$args = array(
@@ -907,11 +910,11 @@ function wp_nav_menu_item_taxonomy_meta_box( $object, $taxonomy ) {
 	$walker = new Walker_Nav_Menu_Checklist( $db_fields );
 
 	$current_tab = 'most-used';
-	if ( isset( $_REQUEST[$taxonomy_name . '-tab'] ) && in_array( $_REQUEST[$taxonomy_name . '-tab'], array('all', 'most-used', 'search') ) ) {
-		$current_tab = $_REQUEST[$taxonomy_name . '-tab'];
+	if ( Request::isSetKey($taxonomy_name . '-tab') && in_array( Request::getKey($taxonomy_name . '-tab'), array('all', 'most-used', 'search') ) ) {
+		$current_tab = Request::getKey($taxonomy_name . '-tab');
 	}
 
-	if ( ! empty( $_REQUEST['quick-search-taxonomy-' . $taxonomy_name] ) ) {
+	if ( !Request::isEmptyQuickSearchTaxonomy($taxonomy_name) ) {
 		$current_tab = 'search';
 	}
 
@@ -981,8 +984,8 @@ function wp_nav_menu_item_taxonomy_meta_box( $object, $taxonomy ) {
 			echo ( 'search' == $current_tab ? 'tabs-panel-active' : 'tabs-panel-inactive' );
 		?>" id="tabs-panel-search-taxonomy-<?php echo $taxonomy_name; ?>">
 			<?php
-			if ( isset( $_REQUEST['quick-search-taxonomy-' . $taxonomy_name] ) ) {
-				$searched = esc_attr( $_REQUEST['quick-search-taxonomy-' . $taxonomy_name] );
+			if ( Request::isSetQuickSearchTaxonomy($taxonomy_name) ) {
+				$searched = esc_attr( Request::getQuickSearchTaxonomy($taxonomy_name) );
 				$search_results = get_terms( $taxonomy_name, array( 'name__like' => $searched, 'fields' => 'all', 'orderby' => 'count', 'order' => 'DESC', 'hierarchical' => false ) );
 			} else {
 				$searched = '';

@@ -191,7 +191,7 @@ function display_themes() {
 function install_theme_information() {
 	global $wp_list_table;
 
-	$theme = themes_api( 'theme_information', array( 'slug' => wp_unslash( $_REQUEST['theme'] ) ) );
+	$theme = themes_api( 'theme_information', array( 'slug' => wp_unslash( Request::getTheme() ) ) );
 
 	if ( is_wp_error( $theme ) )
 		wp_die( $theme );

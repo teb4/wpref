@@ -81,11 +81,11 @@ case 'delete':
 			$location = $referer;
 	}
 
-	if ( ! isset( $_REQUEST['tag_ID'] ) ) {
+	if ( !Request::isSetTagId() ) {
 		break;
 	}
 
-	$tag_ID = (int) $_REQUEST['tag_ID'];
+	$tag_ID = (int) Request::getTagId();
 	check_admin_referer( 'delete-tag_' . $tag_ID );
 
 	if ( !current_user_can( $tax->cap->delete_terms ) )
@@ -103,7 +103,7 @@ case 'bulk-delete':
 	if ( !current_user_can( $tax->cap->delete_terms ) )
 		wp_die( __( 'Cheatin&#8217; uh?' ), 403 );
 
-	$tags = (array) $_REQUEST['delete_tags'];
+	$tags = (array) Request::getDeleteTags();
 	foreach ( $tags as $tag_ID ) {
 		wp_delete_term( $tag_ID, $taxonomy );
 	}
@@ -123,7 +123,7 @@ case 'bulk-delete':
 case 'edit':
 	$title = $tax->labels->edit_item;
 
-	$tag_ID = (int) $_REQUEST['tag_ID'];
+	$tag_ID = (int) Request::getTagId();
 
 	$tag = get_term( $tag_ID, $taxonomy, OBJECT, 'edit' );
 	if ( ! $tag )
@@ -163,13 +163,13 @@ case 'editedtag':
 	break;
 }
 
-if ( ! $location && ! empty( $_REQUEST['_wp_http_referer'] ) ) {
+if ( ! $location && !Request::isEmpty_Wp_http_referer() ) {
 	$location = remove_query_arg( array('_wp_http_referer', '_wpnonce'), wp_unslash($_SERVER['REQUEST_URI']) );
 }
 
 if ( $location ) {
-	if ( ! empty( $_REQUEST['paged'] ) ) {
-		$location = add_query_arg( 'paged', (int) $_REQUEST['paged'], $location );
+	if ( !Request::isEmptyPaged() ) {
+		$location = add_query_arg( 'paged', (int) Request::getPaged(), $location );
 	}
 	wp_redirect( $location );
 	exit;
@@ -293,14 +293,14 @@ $messages['post_tag'] = array(
 $messages = apply_filters( 'term_updated_messages', $messages );
 
 $message = false;
-if ( isset( $_REQUEST['message'] ) && ( $msg = (int) $_REQUEST['message'] ) ) {
+if ( Request::isSetMessage() && ( $msg = (int) Request::getMessage() ) ) {
 	if ( isset( $messages[ $taxonomy ][ $msg ] ) )
 		$message = $messages[ $taxonomy ][ $msg ];
 	elseif ( ! isset( $messages[ $taxonomy ] ) && isset( $messages['_item'][ $msg ] ) )
 		$message = $messages['_item'][ $msg ];
 }
 
-$class = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated';
+$class = ( Request::isSetError() ) ? 'error' : 'updated';
 ?>
 
 <div class="wrap nosubsub">

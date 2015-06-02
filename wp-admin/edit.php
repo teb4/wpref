@@ -36,8 +36,8 @@ $pagenum = $wp_list_table->get_pagenum();
 
 // Back-compat for viewing comments of an entry
 foreach ( array( 'p', 'attachment_id', 'page_id' ) as $_redirect ) {
-	if ( ! empty( $_REQUEST[ $_redirect ] ) ) {
-		wp_redirect( admin_url( 'edit-comments.php?p=' . absint( $_REQUEST[ $_redirect ] ) ) );
+	if ( !Request::isEmptyKey( $_redirect ) ) {
+		wp_redirect( admin_url( 'edit-comments.php?p=' . absint( Request::getKey( $_redirect ) ) ) );
 		exit;
 	}
 }
@@ -67,18 +67,18 @@ if ( $doaction ) {
 
 	if ( 'delete_all' == $doaction ) {
 		// Prepare for deletion of all posts with a specified post status (i.e. Empty trash).
-		$post_status = preg_replace('/[^a-z0-9_-]+/i', '', $_REQUEST['post_status']);
+		$post_status = preg_replace('/[^a-z0-9_-]+/i', '', Request::getPostStatus());
 		// Validate the post status exists.
 		if ( get_post_status_object( $post_status ) ) {
 			$post_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type=%s AND post_status = %s", $post_type, $post_status ) );
 		}
 		$doaction = 'delete';
-	} elseif ( isset( $_REQUEST['media'] ) ) {
-		$post_ids = $_REQUEST['media'];
+	} elseif (Request::isSetMedia() ) {
+		$post_ids = Request::getMedia();
 	} elseif (Request::isSetIds() ) {
 		$post_ids = explode( ',', Request::getIds() );
-	} elseif ( !empty( $_REQUEST['post'] ) ) {
-		$post_ids = array_map('intval', $_REQUEST['post']);
+	} elseif ( !Request::isEmptyPost() ) {
+		$post_ids = array_map('intval', Request::getPost());
 	}
 
 	if ( !isset( $post_ids ) ) {
@@ -140,8 +140,8 @@ if ( $doaction ) {
 			$sendback = add_query_arg('deleted', $deleted, $sendback);
 			break;
 		case 'edit':
-			if ( isset($_REQUEST['bulk_edit']) ) {
-				$done = bulk_edit_posts($_REQUEST);
+			if ( Request::isSetBulkEdit() ) {
+				$done = bulk_edit_posts(Request::getArray());
 
 				if ( is_array($done) ) {
 					$done['updated'] = count( $done['updated'] );
@@ -157,7 +157,7 @@ if ( $doaction ) {
 
 	wp_redirect($sendback);
 	exit();
-} elseif ( ! empty($_REQUEST['_wp_http_referer']) ) {
+} elseif ( ! Request::isEmpty_Wp_http_referer() ) {
 	 wp_redirect( remove_query_arg( array('_wp_http_referer', '_wpnonce'), wp_unslash($_SERVER['REQUEST_URI']) ) );
 	 exit;
 }
@@ -239,11 +239,11 @@ if ( 'post' == $post_type ) {
 add_screen_option( 'per_page', array( 'default' => 20, 'option' => 'edit_' . $post_type . '_per_page' ) );
 
 $bulk_counts = array(
-	'updated'   => isset( $_REQUEST['updated'] )   ? absint( $_REQUEST['updated'] )   : 0,
-	'locked'    => isset( $_REQUEST['locked'] )    ? absint( $_REQUEST['locked'] )    : 0,
-	'deleted'   => isset( $_REQUEST['deleted'] )   ? absint( $_REQUEST['deleted'] )   : 0,
-	'trashed'   => isset( $_REQUEST['trashed'] )   ? absint( $_REQUEST['trashed'] )   : 0,
-	'untrashed' => isset( $_REQUEST['untrashed'] ) ? absint( $_REQUEST['untrashed'] ) : 0,
+	'updated'   => Request::isSetUpdated()   ? absint( Request::getUpdated() )   : 0,
+	'locked'    => Request::isSetLocked()    ? absint( Request::getLocked() )    : 0,
+	'deleted'   => Request::isSetDeleted()   ? absint( Request::getDeleted() )   : 0,
+	'trashed'   => Request::isSetTrashed()   ? absint( Request::getTrashed() )   : 0,
+	'untrashed' => Request::isSetUntrashed() ? absint( Request::getUntrashed() ) : 0,
 );
 
 $bulk_messages = array();
@@ -317,9 +317,9 @@ $_SERVER['REQUEST_URI'] = remove_query_arg( array( 'locked', 'skipped', 'updated
 
 <?php $wp_list_table->search_box( $post_type_object->labels->search_items, 'post' ); ?>
 
-<input type="hidden" name="post_status" class="post_status_page" value="<?php echo !empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : 'all'; ?>" />
+    <input type="hidden" name="post_status" class="post_status_page" value="<?php echo !Request::isEmptyPostStatus() ? esc_attr(Request::getPostStatus()) : 'all'; ?>" />
 <input type="hidden" name="post_type" class="post_type_page" value="<?php echo $post_type; ?>" />
-<?php if ( ! empty( $_REQUEST['show_sticky'] ) ) { ?>
+<?php if ( !Request::isEmptyShowSticky() ) { ?>
 <input type="hidden" name="show_sticky" value="1" />
 <?php } ?>
 

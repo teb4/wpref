@@ -19,7 +19,7 @@ $pagenum = $wp_list_table->get_pagenum();
 
 $action = $wp_list_table->current_action();
 
-$plugin = isset($_REQUEST['plugin']) ? $_REQUEST['plugin'] : '';
+$plugin = Request::isSetPlugin() ? Request::getPlugin() : '';
 $s = Request::isSetS() ? urlencode(Request::getS()) : '';
 
 // Clean up request URI from temporary args for screen options/paging uri's to work as expected.
@@ -218,7 +218,7 @@ if ( $action ) {
 			check_admin_referer('bulk-plugins');
 
 			//$_POST = from the plugin form; $_GET = from the FTP details screen.
-			$plugins = isset( $_REQUEST['checked'] ) ? (array) $_REQUEST['checked'] : array();
+			$plugins = Request::isSetChecked() ? (array) Request::getChecked() : array();
 			if ( empty( $plugins ) ) {
 				wp_redirect( self_admin_url("plugins.php?plugin_status=$status&paged=$page&s=$s") );
 				exit;
@@ -234,7 +234,7 @@ if ( $action ) {
 
 			$parent_file = 'plugins.php';
 
-			if ( ! isset($_REQUEST['verify-delete']) ) {
+			if ( !Request::isSetVerifyDelete() ) {
 				wp_enqueue_script('jquery');
 				require_once(ABSPATH . 'wp-admin/admin-header.php');
 				?>

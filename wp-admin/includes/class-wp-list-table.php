@@ -328,14 +328,14 @@ class WP_List_Table {
 
 		$input_id = $input_id . '-search-input';
 
-		if ( ! empty( $_REQUEST['orderby'] ) )
-			echo '<input type="hidden" name="orderby" value="' . esc_attr( $_REQUEST['orderby'] ) . '" />';
-		if ( ! empty( $_REQUEST['order'] ) )
-			echo '<input type="hidden" name="order" value="' . esc_attr( $_REQUEST['order'] ) . '" />';
-		if ( ! empty( $_REQUEST['post_mime_type'] ) )
-			echo '<input type="hidden" name="post_mime_type" value="' . esc_attr( $_REQUEST['post_mime_type'] ) . '" />';
-		if ( ! empty( $_REQUEST['detached'] ) )
-			echo '<input type="hidden" name="detached" value="' . esc_attr( $_REQUEST['detached'] ) . '" />';
+		if ( !Request::isEmptyOrderBy() )
+			echo '<input type="hidden" name="orderby" value="' . esc_attr(Request::getOrderBy() ) . '" />';
+		if ( !Request::isEmptyOrder() )
+			echo '<input type="hidden" name="order" value="' . esc_attr( Request::getOrder() ) . '" />';
+		if ( !Request::isEmptyPostMimeType() )
+			echo '<input type="hidden" name="post_mime_type" value="' . esc_attr(Request::getPostMimeType() ) . '" />';
+		if ( !Request::isEmptyDetached() )
+			echo '<input type="hidden" name="detached" value="' . esc_attr(Request::getDetached() ) . '" />';
 ?>
 <p class="search-box">
 	<label class="screen-reader-text" for="<?php echo $input_id ?>"><?php echo $text; ?>:</label>
@@ -461,14 +461,14 @@ class WP_List_Table {
 	 * @return string|bool The action name or False if no action was selected
 	 */
 	public function current_action() {
-		if ( isset( $_REQUEST['filter_action'] ) && ! empty( $_REQUEST['filter_action'] ) )
+		if ( Request::isSetFilterAction() && !Request::isEmptyFilterAction() )
 			return false;
 
 		if ( Request::isSetAction() && -1 != Request::getAction() )
 			return Request::getAction();
 
-		if ( isset( $_REQUEST['action2'] ) && -1 != $_REQUEST['action2'] )
-			return $_REQUEST['action2'];
+		if ( Request::isSetAction2() && -1 != Request::getAction2() )
+			return Request::getAction2();
 
 		return false;
 	}
@@ -630,7 +630,7 @@ class WP_List_Table {
 	 * @return int
 	 */
 	public function get_pagenum() {
-		$pagenum = isset( $_REQUEST['paged'] ) ? absint( $_REQUEST['paged'] ) : 0;
+		$pagenum = Request::isSetPaged() ? absint( Request::getPaged() ) : 0;
 
 		if( isset( $this->_pagination_args['total_pages'] ) && $pagenum > $this->_pagination_args['total_pages'] )
 			$pagenum = $this->_pagination_args['total_pages'];
@@ -1101,7 +1101,7 @@ class WP_List_Table {
 		$this->prepare_items();
 
 		ob_start();
-		if ( ! empty( $_REQUEST['no_placeholder'] ) ) {
+		if ( !Request::isEmptyNoPlaceholder() ) {
 			$this->display_rows();
 		} else {
 			$this->display_rows_or_placeholder();

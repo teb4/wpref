@@ -43,8 +43,8 @@ class WP_Themes_List_Table extends WP_List_Table {
 		if ( !Request::isEmptyS() )
 			$this->search_terms = array_unique( array_filter( array_map( 'trim', explode( ',', strtolower( wp_unslash(Request::getS() ) ) ) ) ) );
 
-		if ( ! empty( $_REQUEST['features'] ) )
-			$this->features = $_REQUEST['features'];
+		if ( !Request::isEmptyFeatures() )
+			$this->features = Request::getFeatures();
 
 		if ( $this->search_terms || $this->features ) {
 			foreach ( $themes as $key => $theme ) {

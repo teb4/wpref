@@ -13,6 +13,9 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+use wp\Request;
+
 class Custom_Image_Header {
 
 	/**
@@ -138,8 +141,8 @@ class Custom_Image_Header {
 
 		$step = (int) $_GET['step'];
 		if ( $step < 1 || 3 < $step ||
-			( 2 == $step && ! wp_verify_nonce( $_REQUEST['_wpnonce-custom-header-upload'], 'custom-header-upload' ) ) ||
-			( 3 == $step && ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'custom-header-crop-image' ) )
+			( 2 == $step && ! wp_verify_nonce( Request::get_WpNonce_custom_header_upload(), 'custom-header-upload' ) ) ||
+			( 3 == $step && ! wp_verify_nonce( Request::get_WpNonce(), 'custom-header-crop-image' ) )
 		)
 			return 1;
 
