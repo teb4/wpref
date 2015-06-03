@@ -7,7 +7,9 @@
  */
 
 require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
 use wp\Request;
+use wp\CommentsModel;
 
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -25,7 +27,7 @@ if ( $doaction ) {
 	if ( 'delete_all' == $doaction && !Request::isEmptyPagegenTimestamp() ) {
 		$comment_status = wp_unslash( Request::getCommentStatus() );
 		$delete_time = wp_unslash( Request::getPagegenTimestamp() );
-		$comment_ids = $wpdb->get_col( $wpdb->prepare( "SELECT comment_ID FROM $wpdb->comments WHERE comment_approved = %s AND %s > comment_date_gmt", $comment_status, $delete_time ) );
+                $comment_ids = CommentsModel::getCommentIds( $wpdb, $comment_status, $delete_time );
 		$doaction = 'delete';
 	} elseif (Request::isSetDeleteComments() ) {
 		$comment_ids = Request::getDeleteComments();

@@ -2,6 +2,9 @@
 /**
  * WP_Importer base class
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
+use wp\CommentsModel;
+
 class WP_Importer {
 	/**
 	 * Class Constructor
@@ -88,8 +91,7 @@ class WP_Importer {
 
 		// Grab all comments in chunks
 		do {
-			$sql = $wpdb->prepare( "SELECT comment_ID, comment_agent FROM $wpdb->comments LIMIT %d,%d", $offset, $limit );
-			$results = $wpdb->get_results( $sql );
+                        $results = CommentsModel::getAllCommentsInChunks( $wpdb, $offset, $limit );
 
 			// Increment offset
 			$offset = ( $limit + $offset );

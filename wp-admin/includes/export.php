@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
+use wp\CommentsModel;
 
 /**
  * Version number for the export format.
@@ -459,7 +461,7 @@ function export_wp( $args = array() ) {
 		</wp:postmeta>
 <?php	endforeach;
 
-		$comments = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_approved <> 'spam'", $post->ID ) );
+                $comments = CommentsModel::getComments( $wpdb, $post );
 		foreach ( $comments as $c ) : ?>
 		<wp:comment>
 			<wp:comment_id><?php echo $c->comment_ID; ?></wp:comment_id>

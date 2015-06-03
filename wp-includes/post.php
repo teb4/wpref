@@ -6,6 +6,8 @@
  * @subpackage Post
  * @since 1.5.0
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
+use wp\CommentsModel;
 
 //
 // Post Type Registration
@@ -2630,7 +2632,7 @@ function wp_delete_post( $postid = 0, $force_delete = false ) {
 	// Point all attachments to this post up one level.
 	$wpdb->update( $wpdb->posts, $parent_data, $parent_where + array( 'post_type' => 'attachment' ) );
 
-	$comment_ids = $wpdb->get_col( $wpdb->prepare( "SELECT comment_ID FROM $wpdb->comments WHERE comment_post_ID = %d", $postid ));
+        $comment_ids = CommentsModel::getIdsByPostId( $wpdb, $postid );
 	foreach ( $comment_ids as $comment_id )
 		wp_delete_comment( $comment_id, true );
 
@@ -2839,7 +2841,7 @@ function wp_trash_post_comments( $post = null ) {
 	 */
 	do_action( 'trash_post_comments', $post_id );
 
-	$comments = $wpdb->get_results( $wpdb->prepare("SELECT comment_ID, comment_approved FROM $wpdb->comments WHERE comment_post_ID = %d", $post_id) );
+        $comments = CommentsModel::getApprovedByPostId( $wpdb, $post_id );
 	if ( empty($comments) )
 		return;
 
@@ -2908,7 +2910,7 @@ function wp_untrash_post_comments( $post = null ) {
 		if ( 'post-trashed' == $status )
 			$status = '0';
 		$comments_in = implode( "', '", $comments );
-		$wpdb->query( "UPDATE $wpdb->comments SET comment_approved = '$status' WHERE comment_ID IN ('" . $comments_in . "')" );
+                CommentsModel::setStatusByIds( $wpdb, $status, $comments_in );
 	}
 
 	clean_comment_cache( array_keys($statuses) );
@@ -4836,7 +4838,7 @@ function wp_delete_attachment( $post_id, $force_delete = false ) {
 	// Delete all for any posts.
 	delete_metadata( 'post', null, '_thumbnail_id', $post_id, true );
 
-	$comment_ids = $wpdb->get_col( $wpdb->prepare( "SELECT comment_ID FROM $wpdb->comments WHERE comment_post_ID = %d", $post_id ));
+        $comment_ids = CommentsModel::getIdsByPostId_2( $wpdb, $post_id );
 	foreach ( $comment_ids as $comment_id )
 		wp_delete_comment( $comment_id, true );
 

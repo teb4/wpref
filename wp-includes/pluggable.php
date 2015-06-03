@@ -7,6 +7,8 @@
  */
 require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
 use wp\Request;
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
+use wp\CommentsModel;
 
 if ( !function_exists('wp_set_current_user') ) :
 /**
@@ -1552,7 +1554,7 @@ function wp_notify_moderator($comment_id) {
 	}
 
 	$comment_author_domain = @gethostbyaddr($comment->comment_author_IP);
-	$comments_waiting = $wpdb->get_var("SELECT count(comment_ID) FROM $wpdb->comments WHERE comment_approved = '0'");
+        $comments_waiting = CommentsModel::getCountWaiting( $wpdb );
 
 	// The blogname option is escaped with esc_html on the way into the database in sanitize_option
 	// we want to reverse this for the plain text arena of emails.

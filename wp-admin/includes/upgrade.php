@@ -7,6 +7,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
+use wp\CommentsModel;
 
 /** Include user install customize script. */
 if ( file_exists(WP_CONTENT_DIR . '/install.php') )
@@ -189,15 +191,8 @@ To delete a comment, just log in and view the post&#039;s comments. There you wi
 		$first_comment_url = get_site_option( 'first_comment_url', network_home_url() );
 		$first_comment = get_site_option( 'first_comment', $first_comment );
 	}
-	$wpdb->insert( $wpdb->comments, array(
-								'comment_post_ID' => 1,
-								'comment_author' => $first_comment_author,
-								'comment_author_email' => '',
-								'comment_author_url' => $first_comment_url,
-								'comment_date' => $now,
-								'comment_date_gmt' => $now_gmt,
-								'comment_content' => $first_comment
-								));
+
+        CommentsModel::addFirstComment($wpdb, $first_comment_author, $first_comment_url, $now, $now_gmt, $first_comment);
 
 	// First Page
 	$first_page = sprintf( __( "This is an example page. It's different from a blog post because it will stay in one place and will show up in your site navigation (in most themes). Most people start with an About page that introduces them to potential site visitors. It might say something like this:
@@ -669,7 +664,7 @@ function upgrade_110() {
 		$wpdb->query("UPDATE $wpdb->posts SET post_date_gmt = DATE_ADD(post_date, INTERVAL '$add_hours:$add_minutes' HOUR_MINUTE)");
 		$wpdb->query("UPDATE $wpdb->posts SET post_modified = post_date");
 		$wpdb->query("UPDATE $wpdb->posts SET post_modified_gmt = DATE_ADD(post_modified, INTERVAL '$add_hours:$add_minutes' HOUR_MINUTE) WHERE post_modified != '0000-00-00 00:00:00'");
-		$wpdb->query("UPDATE $wpdb->comments SET comment_date_gmt = DATE_ADD(comment_date, INTERVAL '$add_hours:$add_minutes' HOUR_MINUTE)");
+                CommentsModel::addTimeToDates( $wpdb, $add_hours, $add_minutes );
 		$wpdb->query("UPDATE $wpdb->users SET user_registered = DATE_ADD(user_registered, INTERVAL '$add_hours:$add_minutes' HOUR_MINUTE)");
 	}
 
@@ -701,13 +696,13 @@ function upgrade_130() {
 	}
 
 	// Remove extraneous backslashes.
-	$comments = $wpdb->get_results("SELECT comment_ID, comment_author, comment_content FROM $wpdb->comments");
+        $comments = CommentsModel::getComments_2($wpdb);
 	if ($comments) {
 		foreach($comments as $comment) {
 			$comment_content = deslash($comment->comment_content);
 			$comment_author = deslash($comment->comment_author);
 
-			$wpdb->update($wpdb->comments, compact('comment_content', 'comment_author'), array('comment_ID' => $comment->comment_ID) );
+                        CommentsModel::updateById($wpdb, compact('comment_content', 'comment_author'), $comment);
 		}
 	}
 
@@ -740,8 +735,7 @@ function upgrade_130() {
 	$wpdb->query('DROP TABLE IF EXISTS ' . $wpdb->prefix . 'optiongroup_options');
 
 	// Update comments table to use comment_type
-	$wpdb->query("UPDATE $wpdb->comments SET comment_type='trackback', comment_content = REPLACE(comment_content, '<trackback />', '') WHERE comment_content LIKE '<trackback />%'");
-	$wpdb->query("UPDATE $wpdb->comments SET comment_type='pingback', comment_content = REPLACE(comment_content, '<pingback />', '') WHERE comment_content LIKE '<pingback />%'");
+        CommentsModel::updateToUseCommentType($wpdb);
 
 	// Some versions have multiple duplicate option_name rows with the same values
 	$options = $wpdb->get_results("SELECT option_name, COUNT(option_name) AS dupes FROM `$wpdb->options` GROUP BY option_name");
@@ -818,7 +812,7 @@ function upgrade_160() {
 	$wpdb->show_errors();
 
 	// Populate comment_count field of posts table.
-	$comments = $wpdb->get_results( "SELECT comment_post_ID, COUNT(*) as c FROM $wpdb->comments WHERE comment_approved = '1' GROUP BY comment_post_ID" );
+        $comments = CommentsModel::getComments_3( $wpdb );
 	if ( is_array( $comments ) )
 		foreach ($comments as $comment)
 			$wpdb->update( $wpdb->posts, array('comment_count' => $comment->c), array('ID' => $comment->comment_post_ID) );
@@ -1323,7 +1317,7 @@ function upgrade_340() {
 
 	if ( $wp_current_db_version < 19799 ) {
 		$wpdb->hide_errors();
-		$wpdb->query("ALTER TABLE $wpdb->comments DROP INDEX comment_approved");
+                CommentsModel::dropIndexCommentApproved($wpdb);
 		$wpdb->show_errors();
 	}
 
@@ -1484,12 +1478,7 @@ function upgrade_422() {
 
 		$allowed_length = intval( $content_length['length'] ) - 10;
 
-		$comments = $wpdb->get_results(
-			"SELECT `comment_ID` FROM `{$wpdb->comments}`
-				WHERE `comment_date_gmt` > '2015-04-26'
-				AND LENGTH( `comment_content` ) >= {$allowed_length}
-				AND ( `comment_content` LIKE '%<%' OR `comment_content` LIKE '%>%' )"
-		);
+                $comments = CommentsModel::getComments_4( $wpdb, $allowed_length );
 
 		foreach ( $comments as $comment ) {
 			wp_delete_comment( $comment->comment_ID, true );

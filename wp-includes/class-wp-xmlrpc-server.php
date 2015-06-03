@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Publishing
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
+use wp\CommentsModel;
 
 /**
  * WordPress XMLRPC server implementation.
@@ -5600,8 +5602,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		if ( !$actual_post )
 			return new IXR_Error(404, __('Sorry, no such post.'));
 
-		$comments = $wpdb->get_results( $wpdb->prepare("SELECT comment_author_url, comment_content, comment_author_IP, comment_type FROM $wpdb->comments WHERE comment_post_ID = %d", $post_ID) );
-
+                $comments = CommentsModel::getByPostId( $wpdb, $post_ID );
 		if ( !$comments )
 			return array();
 
@@ -5757,7 +5758,7 @@ class wp_xmlrpc_server extends IXR_Server {
 	  		return $this->pingback_error( 33, __( 'The specified target URL cannot be used as a target. It either doesn&#8217;t exist, or it is not a pingback-enabled resource.' ) );
 
 		// Let's check that the remote site didn't already pingback this entry
-		if ( $wpdb->get_results( $wpdb->prepare("SELECT * FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_author_url = %s", $post_ID, $pagelinkedfrom) ) )
+		if ( CommentsModel::getByPostIdAndAuthorUrl($wpdb, $post_ID, $pagelinkedfrom) )
 			return $this->pingback_error( 48, __( 'The pingback has already been registered.' ) );
 
 		// very stupid, but gives time to the 'from' server to publish !
@@ -5904,8 +5905,7 @@ class wp_xmlrpc_server extends IXR_Server {
 	  		return $this->pingback_error( 32, __('The specified target URL does not exist.' ) );
 		}
 
-		$comments = $wpdb->get_results( $wpdb->prepare("SELECT comment_author_url, comment_content, comment_author_IP, comment_type FROM $wpdb->comments WHERE comment_post_ID = %d", $post_ID) );
-
+                $comments = CommentsModel::getByPostId_2( $wpdb, $post_ID );
 		if ( !$comments )
 			return array();
 

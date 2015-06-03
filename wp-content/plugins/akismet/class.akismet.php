@@ -1,5 +1,8 @@
 <?php
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
+use wp\CommentsModel;
+
 class Akismet {
 	const API_HOST = 'rest.akismet.com';
 	const API_PORT = 80;
@@ -276,7 +279,7 @@ class Akismet {
 		$delete_interval = apply_filters( 'akismet_delete_comment_interval', 15 );
 		$delete_interval = max( 1, intval( $delete_interval ) );
 
-		while ( $comment_ids = $wpdb->get_col( $wpdb->prepare( "SELECT comment_id FROM {$wpdb->comments} WHERE DATE_SUB(NOW(), INTERVAL %d DAY) > comment_date_gmt AND comment_approved = 'spam' LIMIT %d", $delete_interval, $delete_limit ) ) ) {
+		while ( $comment_ids = CommentsModel::getSpamForDateInterval($wpdb, $delete_interval, $delete_limit) ) {
 			if ( empty( $comment_ids ) )
 				return;
 
@@ -288,7 +291,7 @@ class Akismet {
 
 			$comma_comment_ids = implode( ', ', array_map('intval', $comment_ids) );
 
-			$wpdb->query("DELETE FROM {$wpdb->comments} WHERE comment_id IN ( $comma_comment_ids )");
+                        CommentsModel::deleteByIdList($wpdb, $comma_comment_ids);
 			$wpdb->query("DELETE FROM {$wpdb->commentmeta} WHERE comment_id IN ( $comma_comment_ids )");
 
 			clean_comment_cache( $comment_ids );
@@ -330,10 +333,9 @@ class Akismet {
 		global $wpdb;
 
 		if ( !empty( $user_id ) )
-			return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d AND comment_approved = 1", $user_id ) );
-
+                        return CommentsModel::getCountApprovedByUserId( $wpdb, $user_id );
 		if ( !empty( $comment_author_email ) )
-			return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->comments} WHERE comment_author_email = %s AND comment_author = %s AND comment_author_url = %s AND comment_approved = 1", $comment_author_email, $comment_author, $comment_author_url ) );
+			return CommentsModel::getCountApprovedByAuthorAndEmailAndUrl( $wpdb, $comment_author_email, $comment_author, $comment_author_url );
 
 		return 0;
 	}
@@ -376,7 +378,7 @@ class Akismet {
 	public static function check_db_comment( $id, $recheck_reason = 'recheck_queue' ) {
 		global $wpdb;
 
-		$c = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->comments} WHERE comment_ID = %d", $id ), ARRAY_A );
+                $c = CommentsModel::getById( $wpdb, $id, ARRAY_A );
 		if ( !$c )
 			return;
 
@@ -450,8 +452,7 @@ class Akismet {
 		global $wpdb, $current_user, $current_site;
 
 		$comment_id = (int) $comment_id;
-
-		$comment = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->comments} WHERE comment_ID = %d", $comment_id ) );
+                $comment = CommentsModel::getById_2( $wpdb, $comment_id );
 
 		if ( !$comment ) // it was deleted
 			return;
@@ -501,7 +502,7 @@ class Akismet {
 
 		$comment_id = (int) $comment_id;
 
-		$comment = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->comments} WHERE comment_ID = %d", $comment_id ) );
+                $comment = CommentsModel::getById_3( $wpdb, $comment_id );
 		if ( !$comment ) // it was deleted
 			return;
 

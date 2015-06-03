@@ -7,6 +7,8 @@
  * @package WordPress
  * @subpackage Trackbacks
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
+use wp\CommentsModel;
 
 if (empty($wp)) {
 	require_once( dirname( __FILE__ ) . '/wp-load.php' );
@@ -106,7 +108,7 @@ if ( !empty($tb_url) && !empty($title) ) {
 	$comment_content = "<strong>$title</strong>\n\n$excerpt";
 	$comment_type = 'trackback';
 
-	$dupe = $wpdb->get_results( $wpdb->prepare("SELECT * FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_author_url = %s", $comment_post_ID, $comment_author_url) );
+        $dupe = CommentsModel::getByPostIdAndAuthorUrl_2( $wpdb, $comment_post_ID, $comment_author_url );
 	if ( $dupe )
 		trackback_response(1, 'We already have a ping from that URL for this post.');
 

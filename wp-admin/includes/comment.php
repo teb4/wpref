@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
+use wp\CommentsModel;
 
 /**
  * Determine if a comment exists based on author and date.
@@ -23,8 +25,7 @@ function comment_exists($comment_author, $comment_date) {
 	$comment_author = stripslashes($comment_author);
 	$comment_date = stripslashes($comment_date);
 
-	return $wpdb->get_var( $wpdb->prepare("SELECT comment_post_ID FROM $wpdb->comments
-			WHERE comment_author = %s AND comment_date = %s", $comment_author, $comment_date) );
+        return CommentsModel::isCommentExists( $wpdb, $comment_author, $comment_date );        
 }
 
 /**
@@ -130,7 +131,7 @@ function get_pending_comments_num( $post_id ) {
 	$post_id_array = array_map('intval', $post_id_array);
 	$post_id_in = "'" . implode("', '", $post_id_array) . "'";
 
-	$pending = $wpdb->get_results( "SELECT comment_post_ID, COUNT(comment_ID) as num_comments FROM $wpdb->comments WHERE comment_post_ID IN ( $post_id_in ) AND comment_approved = '0' GROUP BY comment_post_ID", ARRAY_A );
+        $pending = CommentsModel::getPendingCommentsNum( $wpdb, $post_id_in, ARRAY_A );
 
 	if ( $single ) {
 		if ( empty($pending) )

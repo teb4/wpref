@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Comment
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
+use wp\CommentsModel;
 
 /**
  * Check whether a comment passes internal checks to be allowed to add.
@@ -111,7 +113,7 @@ function check_comment($author, $email, $url, $comment, $user_ip, $user_agent, $
 	if ( 1 == get_option('comment_whitelist')) {
 		if ( 'trackback' != $comment_type && 'pingback' != $comment_type && $author != '' && $email != '' ) {
 			// expected_slashed ($author, $email)
-			$ok_to_comment = $wpdb->get_var("SELECT comment_approved FROM $wpdb->comments WHERE comment_author = '$author' AND comment_author_email = '$email' and comment_approved = '1' LIMIT 1");
+			$ok_to_comment = CommentsModel::isApproved( $wpdb, $author, $email );
 			if ( ( 1 == $ok_to_comment ) &&
 				( empty($mod_keys) || false === strpos( $email, $mod_keys) ) )
 					return true;
@@ -182,7 +184,7 @@ function get_comment(&$comment, $output = OBJECT) {
 		if ( isset($GLOBALS['comment']) && ($GLOBALS['comment']->comment_ID == $comment) ) {
 			$_comment = & $GLOBALS['comment'];
 		} elseif ( ! $_comment = wp_cache_get($comment, 'comment') ) {
-			$_comment = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->comments WHERE comment_ID = %d LIMIT 1", $comment));
+                        $_comment = CommentsModel::getById_4( $wpdb, $comment );
 			if ( ! $_comment )
 				return null;
 			wp_cache_add($_comment->comment_ID, $_comment, 'comment');
@@ -1048,13 +1050,13 @@ function get_lastcommentmodified($timezone = 'server') {
 
 	switch ( strtolower($timezone)) {
 		case 'gmt':
-			$lastcommentmodified = $wpdb->get_var("SELECT comment_date_gmt FROM $wpdb->comments WHERE comment_approved = '1' ORDER BY comment_date_gmt DESC LIMIT 1");
+                        $lastcommentmodified = CommentsModel::getLastModifiedDateByGmtTimezone( $wpdb );
 			break;
 		case 'blog':
-			$lastcommentmodified = $wpdb->get_var("SELECT comment_date FROM $wpdb->comments WHERE comment_approved = '1' ORDER BY comment_date_gmt DESC LIMIT 1");
+                        $lastcommentmodified = CommentsModel::getLastModifiedDateByBlogTimezone( $wpdb );
 			break;
 		case 'server':
-			$lastcommentmodified = $wpdb->get_var($wpdb->prepare("SELECT DATE_ADD(comment_date_gmt, INTERVAL %s SECOND) FROM $wpdb->comments WHERE comment_approved = '1' ORDER BY comment_date_gmt DESC LIMIT 1", $add_seconds_server));
+                        $lastcommentmodified = CommentsModel::getLastModifiedDateByServerTimezone( $wpdb, $add_seconds_server );
 			break;
 	}
 
@@ -1420,7 +1422,7 @@ function check_comment_flood_db( $ip, $email, $date ) {
 	if ( current_user_can( 'manage_options' ) )
 		return; // don't throttle admins
 	$hour_ago = gmdate( 'Y-m-d H:i:s', time() - HOUR_IN_SECONDS );
-	if ( $lasttime = $wpdb->get_var( $wpdb->prepare( "SELECT `comment_date_gmt` FROM `$wpdb->comments` WHERE `comment_date_gmt` >= %s AND ( `comment_author_IP` = %s OR `comment_author_email` = %s ) ORDER BY `comment_date_gmt` DESC LIMIT 1", $hour_ago, $ip, $email ) ) ) {
+	if ( $lasttime = CommentsModel::getLastTime( $wpdb, $hour_ago, $ip, $email ) ) {
 		$time_lastcomment = mysql2date('U', $lasttime, false);
 		$time_newcomment  = mysql2date('U', $date, false);
 		/**
@@ -1569,8 +1571,8 @@ function get_page_of_comment( $comment_ID, $args = array() ) {
 	$comtypewhere = ( 'all' != $args['type'] && isset($allowedtypes[$args['type']]) ) ? " AND comment_type = '" . $allowedtypes[$args['type']] . "'" : '';
 
 	// Count comments older than this one
-	$oldercoms = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(comment_ID) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_parent = 0 AND comment_approved = '1' AND comment_date_gmt < '%s'" . $comtypewhere, $comment->comment_post_ID, $comment->comment_date_gmt ) );
-
+        $oldercoms = CommentsModel::getCountCommentsOlderThenThisOne( $wpdb, $comtypewhere, $comment );
+        
 	// No older comments? Then it's page #1.
 	if ( 0 == $oldercoms )
 		return 1;
@@ -1674,12 +1676,7 @@ function wp_count_comments( $post_id = 0 ) {
 	if ( false !== $count )
 		return $count;
 
-	$where = '';
-	if ( $post_id > 0 )
-		$where = $wpdb->prepare( "WHERE comment_post_ID = %d", $post_id );
-
-	$count = $wpdb->get_results( "SELECT comment_approved, COUNT( * ) AS num_comments FROM {$wpdb->comments} {$where} GROUP BY comment_approved", ARRAY_A );
-
+        $count = CommentsModel::getCountByApproveType( $wpdb, $post_id, ARRAY_A );
 	$total = 0;
 	$approved = array('0' => 'moderated', '1' => 'approved', 'spam' => 'spam', 'trash' => 'trash', 'post-trashed' => 'post-trashed');
 	foreach ( (array) $count as $row ) {
@@ -1737,7 +1734,7 @@ function wp_delete_comment($comment_id, $force_delete = false) {
 	do_action( 'delete_comment', $comment_id );
 
 	// Move children up a level.
-	$children = $wpdb->get_col( $wpdb->prepare("SELECT comment_ID FROM $wpdb->comments WHERE comment_parent = %d", $comment_id) );
+        $children = CommentsModel::getChildren( $wpdb, $comment_id );
 	if ( !empty($children) ) {
 		$wpdb->update($wpdb->comments, array('comment_parent' => $comment->comment_parent), array('comment_parent' => $comment_id));
 		clean_comment_cache($children);
@@ -2566,7 +2563,7 @@ function wp_update_comment_count_now($post_id) {
 		return false;
 
 	$old = (int) $post->comment_count;
-	$new = (int) $wpdb->get_var( $wpdb->prepare("SELECT COUNT(*) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_approved = '1'", $post_id) );
+        $new = CommentsModel::getCountCommentsByPostId($wpdb, $post_id);
 	$wpdb->update( $wpdb->posts, array('comment_count' => $new), array('ID' => $post_id) );
 
 	clean_post_cache( $post );

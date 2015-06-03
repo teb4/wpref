@@ -3,6 +3,9 @@
 require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
 use wp\Request;
 
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
+use wp\CommentsModel;
+
 class Akismet_Admin {
 	const NONCE = 'akismet-update-key';
 
@@ -355,7 +358,8 @@ class Akismet_Admin {
 		if ( isset( $_POST['limit'] ) && isset( $_POST['offset'] ) ) {
 			$paginate = $wpdb->prepare( " LIMIT %d OFFSET %d", array( $_POST['limit'], $_POST['offset'] ) );
 		}
-		$moderation = $wpdb->get_results( "SELECT * FROM {$wpdb->comments} WHERE comment_approved = '0'{$paginate}", ARRAY_A );
+
+                $moderation = CommentsModel::getModeration( $wpdb, $paginate, ARRAY_A );
 
 		foreach ( (array) $moderation as $c ) {
 			$c['user_ip']      = $c['comment_author_IP'];
@@ -538,7 +542,7 @@ class Akismet_Admin {
 					$count = wp_count_comments();
 					$count = $count->spam;
 				} else {
-					$count = (int) $wpdb->get_var("SELECT COUNT(comment_ID) FROM {$wpdb->comments} WHERE comment_approved = 'spam'");
+                                    $count = CommentsModel::getSpamCount( $wpdb );
 				}
 				wp_cache_set( 'akismet_spam_count', $count, 'widget', 3600 );
 			}
@@ -547,7 +551,7 @@ class Akismet_Admin {
 			$type = '';
 		}
 
-		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(comment_ID) FROM {$wpdb->comments} WHERE comment_approved = 'spam' AND comment_type = %s", $type ) );
+                return CommentsModel::getSpamCountByCommentType($wpdb, $type);
 	}
 
 	// Check connectivity between the WordPress blog and Akismet's servers.
