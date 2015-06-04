@@ -9,6 +9,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 define( 'WP_INSTALLING_NETWORK', true );
 
@@ -81,7 +83,7 @@ function allow_subdirectory_install() {
 	if ( defined( 'ALLOW_SUBDIRECTORY_INSTALL' ) && ALLOW_SUBDIRECTORY_INSTALL )
 		return true;
 
-	$post = $wpdb->get_row( "SELECT ID FROM $wpdb->posts WHERE post_date < DATE_SUB(NOW(), INTERVAL 1 MONTH) AND post_status = 'publish'" );
+        $post = PostsModel::isExistsMonthAge( $wpdb );
 	if ( empty( $post ) )
 		return true;
 

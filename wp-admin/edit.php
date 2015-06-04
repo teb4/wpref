@@ -7,6 +7,8 @@
  */
 require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
 use wp\Request;
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -70,7 +72,7 @@ if ( $doaction ) {
 		$post_status = preg_replace('/[^a-z0-9_-]+/i', '', Request::getPostStatus());
 		// Validate the post status exists.
 		if ( get_post_status_object( $post_status ) ) {
-			$post_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type=%s AND post_status = %s", $post_type, $post_status ) );
+                        $post_ids = wp\PostsModel::getIdsByTypeAndStatus( $wpdb, $post_type, $post_status );
 		}
 		$doaction = 'delete';
 	} elseif (Request::isSetMedia() ) {

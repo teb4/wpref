@@ -9,6 +9,8 @@
  */
 require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
 use wp\Request;
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 //
 // Category Checklists
@@ -850,8 +852,8 @@ function page_template_dropdown( $default = '' ) {
 function parent_dropdown( $default = 0, $parent = 0, $level = 0 ) {
 	global $wpdb;
 	$post = get_post();
-	$items = $wpdb->get_results( $wpdb->prepare("SELECT ID, post_parent, post_title FROM $wpdb->posts WHERE post_parent = %d AND post_type = 'page' ORDER BY menu_order", $parent) );
-
+        $items = PostsModel::getItemList( $wpdb, $parent );
+        
 	if ( $items ) {
 		foreach ( $items as $item ) {
 			// A page cannot be its own parent.

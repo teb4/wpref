@@ -9,6 +9,8 @@
  */
 require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
 use wp\CommentsModel;
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 /** Include user install customize script. */
 if ( file_exists(WP_CONTENT_DIR . '/install.php') )
@@ -545,12 +547,12 @@ function upgrade_100() {
 	global $wpdb;
 
 	// Get the title and ID of every post, post_name to check if it already has a value
-	$posts = $wpdb->get_results("SELECT ID, post_title, post_name FROM $wpdb->posts WHERE post_name = ''");
+        $posts = PostsModel::getList( $wpdb );
 	if ($posts) {
 		foreach($posts as $post) {
 			if ('' == $post->post_name) {
 				$newtitle = sanitize_title($post->post_title);
-				$wpdb->query( $wpdb->prepare("UPDATE $wpdb->posts SET post_name = %s WHERE ID = %d", $newtitle, $post->ID) );
+                                PostsModel::setName( $wpdb, $newtitle, $post );
 			}
 		}
 	}
@@ -654,16 +656,14 @@ function upgrade_110() {
 	// Check if we already set the GMT fields (if we did, then
 	// MAX(post_date_gmt) can't be '0000-00-00 00:00:00'
 	// <michel_v> I just slapped myself silly for not thinking about it earlier
-	$got_gmt_fields = ! ($wpdb->get_var("SELECT MAX(post_date_gmt) FROM $wpdb->posts") == '0000-00-00 00:00:00');
+        $got_gmt_fields = ! (PostsModel::getMaxDateGMT( $wpdb ) == '0000-00-00 00:00:00');
 
 	if (!$got_gmt_fields) {
 
 		// Add or subtract time to all dates, to get GMT dates
 		$add_hours = intval($diff_gmt_weblogger);
 		$add_minutes = intval(60 * ($diff_gmt_weblogger - $add_hours));
-		$wpdb->query("UPDATE $wpdb->posts SET post_date_gmt = DATE_ADD(post_date, INTERVAL '$add_hours:$add_minutes' HOUR_MINUTE)");
-		$wpdb->query("UPDATE $wpdb->posts SET post_modified = post_date");
-		$wpdb->query("UPDATE $wpdb->posts SET post_modified_gmt = DATE_ADD(post_modified, INTERVAL '$add_hours:$add_minutes' HOUR_MINUTE) WHERE post_modified != '0000-00-00 00:00:00'");
+                PostsModel::addOrSubtractTimeToDatesToGetGmtDates( $wpdb, $add_hours, $add_minutes );
                 CommentsModel::addTimeToDates( $wpdb, $add_hours, $add_minutes );
 		$wpdb->query("UPDATE $wpdb->users SET user_registered = DATE_ADD(user_registered, INTERVAL '$add_hours:$add_minutes' HOUR_MINUTE)");
 	}
@@ -679,7 +679,7 @@ function upgrade_130() {
 	global $wpdb;
 
 	// Remove extraneous backslashes.
-	$posts = $wpdb->get_results("SELECT ID, post_title, post_content, post_excerpt, guid, post_date, post_name, post_status, post_author FROM $wpdb->posts");
+        $posts = PostsModel::getList_2( $wpdb );
 	if ($posts) {
 		foreach($posts as $post) {
 			$post_content = addslashes(deslash($post->post_content));
@@ -822,7 +822,7 @@ function upgrade_160() {
 	 * and put the mime type in post_type instead of post_mime_type.
 	 */
 	if ( $wp_current_db_version > 2541 && $wp_current_db_version <= 3091 ) {
-		$objects = $wpdb->get_results("SELECT ID, post_type FROM $wpdb->posts WHERE post_status = 'object'");
+                $objects = PostsModel::getObjectList( $wpdb );
 		foreach ($objects as $object) {
 			$wpdb->update( $wpdb->posts, array(	'post_status' => 'attachment',
 												'post_mime_type' => $object->post_type,
@@ -846,7 +846,7 @@ function upgrade_210() {
 
 	if ( $wp_current_db_version < 3506 ) {
 		// Update status and type.
-		$posts = $wpdb->get_results("SELECT ID, post_status FROM $wpdb->posts");
+                $posts = PostsModel::getList_3( $wpdb );
 
 		if ( ! empty($posts) ) foreach ($posts as $post) {
 			$status = $post->post_status;
@@ -860,7 +860,7 @@ function upgrade_210() {
 				$type = 'attachment';
 			}
 
-			$wpdb->query( $wpdb->prepare("UPDATE $wpdb->posts SET post_status = %s, post_type = %s WHERE ID = %d", $status, $type, $post->ID) );
+                        PostsModel::setStatusAndType( $wpdb, $status, $type, $post );
 		}
 	}
 
@@ -871,9 +871,9 @@ function upgrade_210() {
 	if ( $wp_current_db_version < 3531 ) {
 		// Give future posts a post_status of future.
 		$now = gmdate('Y-m-d H:i:59');
-		$wpdb->query ("UPDATE $wpdb->posts SET post_status = 'future' WHERE post_status = 'publish' AND post_date_gmt > '$now'");
+                PostsModel::setFuturePostsStatus( $wpdb, $now );
 
-		$posts = $wpdb->get_results("SELECT ID, post_date FROM $wpdb->posts WHERE post_status ='future'");
+                $posts = PostsModel::getFutureList( $wpdb );
 		if ( !empty($posts) )
 			foreach ( $posts as $post )
 				wp_schedule_single_event(mysql2date('U', $post->post_date, false), 'publish_future_post', array($post->ID));
@@ -1143,7 +1143,7 @@ function upgrade_270() {
 
 	// Update post_date for unpublished posts with empty timestamp
 	if ( $wp_current_db_version < 8921 )
-		$wpdb->query( "UPDATE $wpdb->posts SET post_date = post_modified WHERE post_date = '0000-00-00 00:00:00'" );
+                    PostsModel::correctDate( $wpdb );
 }
 
 /**
@@ -2449,7 +2449,7 @@ function pre_schema_upgrade() {
 		$wpdb->query( "ALTER TABLE $wpdb->terms DROP INDEX name, ADD INDEX name(name(191))" );
 		$wpdb->query( "ALTER TABLE $wpdb->commentmeta DROP INDEX meta_key, ADD INDEX meta_key(meta_key(191))" );
 		$wpdb->query( "ALTER TABLE $wpdb->postmeta DROP INDEX meta_key, ADD INDEX meta_key(meta_key(191))" );
-		$wpdb->query( "ALTER TABLE $wpdb->posts DROP INDEX post_name, ADD INDEX post_name(post_name(191))" );
+                PostsModel::changeIndex( $wpdb );
 	}
 }
 

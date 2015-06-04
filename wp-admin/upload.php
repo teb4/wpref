@@ -7,6 +7,9 @@
  */
 require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
 use wp\Request;
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
+
 
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -100,7 +103,7 @@ if ( $doaction ) {
 	check_admin_referer('bulk-media');
 
 	if ( 'delete_all' == $doaction ) {
-		$post_ids = $wpdb->get_col( "SELECT ID FROM $wpdb->posts WHERE post_type='attachment' AND post_status = 'trash'" );
+                $post_ids = PostsModel::getAttachmentInTrashIdList( $wpdb );
 		$doaction = 'delete';
 	} elseif (Request::isSetMedia() ) {
 		$post_ids = Request::getMedia();

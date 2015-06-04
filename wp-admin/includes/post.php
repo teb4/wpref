@@ -7,6 +7,8 @@
  */
 require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
 use wp\Request;
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 /**
  * Rename $_POST data from form names to DB post columns.
@@ -478,7 +480,7 @@ function bulk_edit_posts( $post_data = null ) {
 	}
 
 	if ( isset($post_data['post_parent']) && ($parent = (int) $post_data['post_parent']) ) {
-		$pages = $wpdb->get_results("SELECT ID, post_parent FROM $wpdb->posts WHERE post_type = 'page'");
+                $pages = PostsModel::getPageList( $wpdb );
 		$children = array();
 
 		for ( $i = 0; $i < 50 && $parent > 0; $i++ ) {
@@ -1063,7 +1065,7 @@ function wp_edit_posts_query( $q = false ) {
 function get_available_post_mime_types($type = 'attachment') {
 	global $wpdb;
 
-	$types = $wpdb->get_col($wpdb->prepare("SELECT DISTINCT post_mime_type FROM $wpdb->posts WHERE post_type = %s", $type));
+        $types = PostsModel::getAllAvailableMIMETypesForPostType( $wpdb, $type );
 	return $types;
 }
 

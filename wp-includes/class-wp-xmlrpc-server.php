@@ -7,6 +7,8 @@
  */
 require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/CommentsModel.class.php" );
 use wp\CommentsModel;
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 /**
  * WordPress XMLRPC server implementation.
@@ -2684,18 +2686,8 @@ class wp_xmlrpc_server extends IXR_Server {
 		do_action( 'xmlrpc_call', 'wp.getPageList' );
 
 		// Get list of pages ids and titles
-		$page_list = $wpdb->get_results("
-			SELECT ID page_id,
-				post_title page_title,
-				post_parent page_parent_id,
-				post_date_gmt,
-				post_date,
-				post_status
-			FROM {$wpdb->posts}
-			WHERE post_type = 'page'
-			ORDER BY ID
-		");
-
+                $page_list = PostsModel::getPageAndTitleIdList( $wpdb );
+                
 		// The date needs to be formatted properly.
 		$num_pages = count($page_list);
 		for ( $i = 0; $i < $num_pages; $i++ ) {
@@ -4663,7 +4655,7 @@ class wp_xmlrpc_server extends IXR_Server {
 		global $wpdb;
 
 		// find any unattached files
-		$attachments = $wpdb->get_results( "SELECT ID, guid FROM {$wpdb->posts} WHERE post_parent = '0' AND post_type = 'attachment'" );
+                $attachments = PostsModel::getAttachments( $wpdb );
 		if ( is_array( $attachments ) ) {
 			foreach ( $attachments as $file ) {
 				if ( ! empty( $file->guid ) && strpos( $post_content, $file->guid ) !== false )
@@ -5295,12 +5287,7 @@ class wp_xmlrpc_server extends IXR_Server {
 
 		if ( !empty($data['overwrite']) && ($data['overwrite'] == true) ) {
 			// Get postmeta info on the object.
-			$old_file = $wpdb->get_row("
-				SELECT ID
-				FROM {$wpdb->posts}
-				WHERE post_title = '{$name}'
-					AND post_type = 'attachment'
-			");
+                        $old_file = PostsModel::getAttachmentIdByTitle( $wpdb, $name );
 
 			// Delete previous file.
 			wp_delete_attachment($old_file->ID);
@@ -5733,8 +5720,7 @@ class wp_xmlrpc_server extends IXR_Server {
 			} elseif ( is_string($urltest['fragment']) ) {
 				// ...or a string #title, a little more complicated
 				$title = preg_replace('/[^a-z0-9]/i', '.', $urltest['fragment']);
-				$sql = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_title RLIKE %s", $title );
-				if (! ($post_ID = $wpdb->get_var($sql)) ) {
+                                if (! ($post_ID = PostsModel::getIdByTitle( $wpdb, $title )) ) {
 					// returning unknown error '0' is better than die()ing
 			  		return $this->pingback_error( 0, '' );
 				}

@@ -9,6 +9,8 @@
  */
 require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/Request.class.php" );
 use wp\Request;
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 class WP_Posts_List_Table extends WP_List_Table {
 
@@ -73,11 +75,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 
 		if ( !current_user_can( $post_type_object->cap->edit_others_posts ) ) {
 			$exclude_states = get_post_stati( array( 'show_in_admin_all_list' => false ) );
-			$this->user_posts_count = $wpdb->get_var( $wpdb->prepare( "
-				SELECT COUNT( 1 ) FROM $wpdb->posts
-				WHERE post_type = %s AND post_status NOT IN ( '" . implode( "','", $exclude_states ) . "' )
-				AND post_author = %d
-			", $post_type, get_current_user_id() ) );
+                        $this->user_posts_count = PostsModel::getUserPostsCount( $wpdb, $exclude_states, $post_type, get_current_user_id() );
 
 			if ( $this->user_posts_count && Request::isEmptyPostStatus() && Request::isEmptyAllPosts() && Request::isEmptyAuthor() && Request::isEmptyShowSticky() )
 				$_GET['author'] = get_current_user_id();
@@ -85,7 +83,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 
 		if ( 'post' == $post_type && $sticky_posts = get_option( 'sticky_posts' ) ) {
 			$sticky_posts = implode( ', ', array_map( 'absint', (array) $sticky_posts ) );
-			$this->sticky_posts_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( 1 ) FROM $wpdb->posts WHERE post_type = %s AND post_status NOT IN ('trash', 'auto-draft') AND ID IN ($sticky_posts)", $post_type ) );
+                        $this->sticky_posts_count = PostsModel::getStickyPostsCount( $wpdb, $sticky_posts, $post_type );
 		}
 	}
 

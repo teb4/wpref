@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 /**
  * Creates a new user from the "Users" form using $_POST information.
@@ -315,7 +317,7 @@ function wp_delete_user( $id, $reassign = null ) {
 		 */
 		$post_types_to_delete = apply_filters( 'post_types_to_delete_with_user', $post_types_to_delete, $id );
 		$post_types_to_delete = implode( "', '", $post_types_to_delete );
-		$post_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_author = %d AND post_type IN ('$post_types_to_delete')", $id ) );
+                $post_ids = PostsModel::getIdListByAuthorAndType( $wpdb, $post_types_to_delete, $id );
 		if ( $post_ids ) {
 			foreach ( $post_ids as $post_id )
 				wp_delete_post( $post_id );
@@ -329,7 +331,7 @@ function wp_delete_user( $id, $reassign = null ) {
 				wp_delete_link($link_id);
 		}
 	} else {
-		$post_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_author = %d", $id ) );
+                $post_ids = PostsModel::getIdListByAuthor_2( $wpdb, $id );
 		$wpdb->update( $wpdb->posts, array('post_author' => $reassign), array('post_author' => $id) );
 		if ( ! empty( $post_ids ) ) {
 			foreach ( $post_ids as $post_id )

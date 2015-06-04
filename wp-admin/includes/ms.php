@@ -6,6 +6,8 @@
  * @subpackage Multisite
  * @since 3.0.0
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 /**
  * Determine if uploaded file exceeds space quota.
@@ -203,7 +205,7 @@ function wpmu_delete_user( $id ) {
 			switch_to_blog( $blog->userblog_id );
 			remove_user_from_blog( $id, $blog->userblog_id );
 
-			$post_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_author = %d", $id ) );
+                        $post_ids = PostsModel::getIdListByAuthor( $wpdb, $id );
 			foreach ( (array) $post_ids as $post_id ) {
 				wp_delete_post( $post_id );
 			}

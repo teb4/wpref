@@ -5,6 +5,8 @@
  * @package WordPress
  * @subpackage Administration
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 /** Load WordPress Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
@@ -164,7 +166,7 @@ function export_date_options( $post_type = 'post' ) {
 	<li>
 		<label><?php _e( 'Authors:' ); ?></label>
 <?php
-		$authors = $wpdb->get_col( "SELECT DISTINCT post_author FROM {$wpdb->posts} WHERE post_type = 'post'" );
+                $authors = PostsModel::getAuthorList( $wpdb );
 		wp_dropdown_users( array( 'include' => $authors, 'name' => 'post_author', 'multi' => true, 'show_option_all' => __('All') ) );
 ?>
 	</li>
@@ -196,7 +198,7 @@ function export_date_options( $post_type = 'post' ) {
 	<li>
 		<label><?php _e( 'Authors:' ); ?></label>
 <?php
-		$authors = $wpdb->get_col( "SELECT DISTINCT post_author FROM {$wpdb->posts} WHERE post_type = 'page'" );
+                $authors = PostsModel::getAuthorList_2( $wpdb );
 		wp_dropdown_users( array( 'include' => $authors, 'name' => 'page_author', 'multi' => true, 'show_option_all' => __('All') ) );
 ?>
 	</li>

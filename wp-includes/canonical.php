@@ -8,6 +8,8 @@
  * @package WordPress
  * @since 2.3.0
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 /**
  * Redirects incoming links to the proper URL based on the site url.
@@ -102,7 +104,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 
 	if ( is_singular() && 1 > $wp_query->post_count && ($id = get_query_var('p')) ) {
 
-		$vars = $wpdb->get_results( $wpdb->prepare("SELECT post_type, post_parent FROM $wpdb->posts WHERE ID = %d", $id) );
+                $vars = PostsModel::getTypeAndParentById( $wpdb, $id );
 
 		if ( isset($vars[0]) && $vars = $vars[0] ) {
 			if ( 'revision' == $vars->post_type && $vars->post_parent > 0 )
@@ -192,7 +194,7 @@ function redirect_canonical( $requested_url = null, $do_redirect = true ) {
 				$redirect['query'] = remove_query_arg('year', $redirect['query']);
 		} elseif ( is_author() && !empty($_GET['author']) && preg_match( '|^[0-9]+$|', $_GET['author'] ) ) {
 			$author = get_userdata(get_query_var('author'));
-			if ( ( false !== $author ) && $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE $wpdb->posts.post_author = %d AND $wpdb->posts.post_status = 'publish' LIMIT 1", $author->ID ) ) ) {
+                        if ( ( false !== $author ) && PostsModel::getPublishIdByAuthor( $wpdb, $author ) ) {
 				if ( $redirect_url = get_author_posts_url($author->ID, $author->user_nicename) )
 					$redirect['query'] = remove_query_arg('author', $redirect['query']);
 			}

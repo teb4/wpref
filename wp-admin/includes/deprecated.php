@@ -7,6 +7,8 @@
  * @package WordPress
  * @subpackage Deprecated
  */
+require_once( $_SERVER[ "DOCUMENT_ROOT" ] . "/wp-oop/class/model/PostsModel.class.php" );
+use wp\PostsModel;
 
 /*
  * Deprecated functions come here to die.
@@ -680,7 +682,7 @@ function get_others_unpublished_posts($user_id, $type='any') {
 		$other_unpubs = '';
 	} else {
 		$editable = join(',', $editable);
-		$other_unpubs = $wpdb->get_results( $wpdb->prepare("SELECT ID, post_title, post_author FROM $wpdb->posts WHERE post_type = 'post' AND $type_sql AND post_author IN ($editable) AND post_author != %d ORDER BY post_modified $dir", $user_id) );
+                $other_unpubs = PostsModel::getOtherUnpubs( $wpdb, $type_sql, $editable, $dir, $user_id );
 	}
 
 	return apply_filters('get_others_drafts', $other_unpubs);
